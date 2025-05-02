@@ -1,25 +1,43 @@
 from fastapi import APIRouter
 
-from src.models.cart import Cart
+from src.models.cart import Cart, CartItem
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 
 
 @router.get("/")
 async def get_cart() -> Cart:
-    return {"message": "Get cart items"}
+    # Get user cart
+    return {"message": "Ok.", "cart": "cart"}
 
 
 @router.post("/items")
-async def add_item() -> Cart:
-    return {"message": "Add item to cart"}
+async def add_item(cart_item: CartItem) -> Cart:
+    # Get user cart
+    # Add item to user cart. Validate update quantity
+    return {
+        "message": "Item added to cart",
+        "item": cart_item.model_dump(),
+        "cart": "cart",
+    }
 
 
 @router.put("/items/{item_id}")
-async def update_item(item_id: int) -> Cart:
-    return {"message": f"Update item {item_id} in cart"}
+async def update_item(item_id: str, cart_item: CartItem) -> Cart:
+    # Get user cart
+    return {
+        "message": f"Item updated in cart successfully.",
+        "item": cart_item.model_dump(),
+        "cart": "cart",
+    }
 
 
 @router.delete("/items/{item_id}")
-async def delete_item(item_id: int) -> Cart:
-    return {"message": f"Remove item {item_id} from cart"}
+async def delete_item(item_id: str) -> Cart:
+    # Get user cart
+    # Get item to delete
+    return {
+        "message": f"Item deleted from cart successfully.",
+        "item": "item",
+        "cart": "cart",
+    }

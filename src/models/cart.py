@@ -9,6 +9,7 @@ class CartItem(BaseModel):
 
 
 class Cart(BaseModel):
+    id: str
     items: list[CartItem]
 
     def calculate_total(self) -> float:
