@@ -34,7 +34,7 @@ class Address(BaseModel):
     province: Province
     city: str
     street: str
-    numero: str
+    number: str
     extra: str | None = None
 
 
