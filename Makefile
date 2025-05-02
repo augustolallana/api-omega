@@ -1,9 +1,7 @@
 format:
 	uv run ruff format src
 	uv run isort src
-
 dev:
-	uv run fastapi dev src/main.py
-	
+	uv run uvicorn src.main:app --reload
 prod:
-	uv run fastapi run src/main.py
+	uv run uvicorn src.main:app
