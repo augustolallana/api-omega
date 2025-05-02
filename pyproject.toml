@@ -10,3 +10,36 @@ dependencies = [
     "ruff>=0.11.8",
     "uvicorn>=0.34.2",
 ]
+
+[tool.isort]
+profile = "black"
+multi_line_output = 3
+include_trailing_comma = true
+force_grid_wrap = 0
+use_parentheses = true
+ensure_newline_before_comments = true
+line_length = 79
+
+[tool.ruff]
+# General Ruff settings
+line-length = 79
+target-version = "py312"
+
+# Linter settings
+[tool.ruff.lint]
+select = ["E", "F", "B"]
+exclude = [
+    ".git",
+    ".mypy_cache",
+    ".ruff_cache",
+    ".venv",
+    "__pypackages__",
+    "dist",
+    "build",
+]
+
+# Isort settings
+[tool.ruff.lint.isort]
+from-first = false
+section-order = ["future", "standard-library", "third-party", "first-party", "local-folder"]
+split-on-trailing-comma = true
