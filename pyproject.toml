@@ -1,0 +1,11 @@
+[project]
+name = "api-omega"
+version = "0.1.0"
+description = "REST API that connects to Google AppSheets"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "fastapi[standard]>=0.115.12",
+    "isort>=6.0.1",
+    "ruff>=0.11.8",
+]
