@@ -49,5 +49,5 @@ class Cart(BaseModel):
 
 
 class CartResponse(BaseResponse):
-    item: Optional[CartItem]
+    item: Optional[CartItem] = None
     cart: Cart

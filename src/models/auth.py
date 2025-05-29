@@ -1,6 +1,7 @@
 from pydantic import BaseModel
 
 from src.models.base_response import BaseResponse
+from src.models.user import User
 
 
 class LoginCredentials(BaseModel):
@@ -12,3 +13,7 @@ class LoginCredentials(BaseModel):
 
 class LoginResponse(BaseResponse):
     bearer: str
+
+
+class RegisterResponse(BaseResponse):
+    user: User
