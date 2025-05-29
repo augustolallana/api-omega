@@ -48,8 +48,8 @@ class PaymentMethod(BaseModel):
 class Order(BaseModel):
     id: str
     products: list[CartItem]
-    first_name: str  # a oc
-    last_name: str  # a oc
-    phone_number: str  # a oc
-    address: Address  # mover a oc
+    first_name: str
+    last_name: str
+    phone_number: str
+    address: Address
     payment_method: PaymentMethod

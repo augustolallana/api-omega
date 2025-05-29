@@ -1,6 +1,9 @@
+from typing import Optional
+
 from pydantic import BaseModel
 
-from src.models.products import Product
+from src.models.base_response import BaseResponse
+from src.models.product import Product
 
 
 class CartItem(BaseModel):
@@ -43,3 +46,8 @@ class Cart(BaseModel):
         self.items = [
             item for item in self.items if item.product.id != product_id
         ]
+
+
+class CartResponse(BaseResponse):
+    item: Optional[CartItem]
+    cart: Cart

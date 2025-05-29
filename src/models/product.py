@@ -1,7 +1,10 @@
 from datetime import datetime
 from enum import Enum
+from typing import Optional
 
 from pydantic import BaseModel
+
+from src.models.base_response import BaseResponse
 
 
 class Image(BaseModel):
@@ -49,3 +52,8 @@ class Product(BaseModel):
     stock: int
     expiration_date: datetime
     offer: Offer
+
+
+class ProductsResponse(BaseResponse):
+    old_product: Optional[Product]
+    new_product: Optional[Product]
