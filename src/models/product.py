@@ -55,5 +55,6 @@ class Product(BaseModel):
 
 
 class ProductsResponse(BaseResponse):
+    products: Optional[list[Product]]
     old_product: Optional[Product]
     new_product: Optional[Product]

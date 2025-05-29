@@ -9,4 +9,5 @@ class User(BaseModel):
     email: str
 
 
-UserResponse = BaseResponse
+class UserResponse(BaseResponse):
+    user: User

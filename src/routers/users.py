@@ -1,10 +1,12 @@
 from fastapi import APIRouter
 
-from src.models.user import UserResponse
+from src.models.user import User, UserResponse
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("/me")
 async def get_current_user() -> UserResponse:
-    return UserResponse(message="me", status_code=200)
+    # Retrieve from db
+    u = User(id=1, email="a@b.c", password="123")
+    return UserResponse(message="me", status_code=200, user=u)

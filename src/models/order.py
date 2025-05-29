@@ -2,10 +2,11 @@ from enum import Enum
 
 from pydantic import BaseModel
 
+from src.models.base_response import BaseResponse
 from src.models.cart import CartItem
 
 
-class Province(Enum):
+class Province(str, Enum):
     BUENOS_AIRES = "Buenos Aires"
     CABA = "Ciudad Autónoma de Buenos Aires"
     CATAMARCA = "Catamarca"
@@ -42,7 +43,8 @@ class Address(BaseModel):
 
 
 class PaymentMethod(BaseModel):
-    pass
+    # TODO COMPLETAR
+    type: str  # Maybe enum
 
 
 class Order(BaseModel):
@@ -53,3 +55,7 @@ class Order(BaseModel):
     phone_number: str
     address: Address
     payment_method: PaymentMethod
+
+
+class OrderResponse(BaseResponse):
+    order: Order
