@@ -1,16 +1,18 @@
 from fastapi import APIRouter, Cookie
 
-from src.models.auth import LoginCredentials
+from src.models.auth import LoginCredentials, LoginResponse
 from src.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
 @router.get("/login")
-async def login(creds: LoginCredentials) -> Cookie:
+async def login(creds: LoginCredentials) -> LoginResponse:
     # Check creds
     # TODO add cookies or jwt
-    return {"message": "Login successfully", "bearer": "bearer"}
+    return LoginResponse(
+        message="Login successfully", status_code=200, bearer="bearer"
+    )
 
 
 # TODO check header parameters

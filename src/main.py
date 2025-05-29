@@ -1,5 +1,3 @@
-from typing import Union
-
 from fastapi import FastAPI
 
 from src.routers import admin, auth, cart, checkout, orders, products, users

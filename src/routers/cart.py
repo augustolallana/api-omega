@@ -1,14 +1,17 @@
 from fastapi import APIRouter
 
-from src.models.cart import Cart, CartItem
+from src.models.cart import Cart, CartItem, CartResponse
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 
 
 @router.get("/")
-async def get_cart() -> Cart:
+async def get_cart() -> CartResponse:
     # Get user cart
-    return {"message": "Ok.", "cart": "cart"}
+    c = Cart()
+    return CartResponse(
+        message="OK.", status_code=200, cart=Cart
+    )
 
 
 @router.post("/items")
