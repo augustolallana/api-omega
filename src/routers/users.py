@@ -5,7 +5,7 @@ from src.models.user import User, UserResponse
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/me")
+@router.get("/me", response_model=UserResponse)
 async def get_current_user() -> UserResponse:
     # Retrieve from db
     u = User(id=1, email="a@b.c", password="123")
