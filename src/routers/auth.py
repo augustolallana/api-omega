@@ -5,6 +5,7 @@ from src.models.auth import (
     LoginCredentials,
     LoginResponse,
     LogoutResponse,
+    RegisterCredentials,
     RegisterResponse,
 )
 from src.models.user import User
@@ -35,7 +36,7 @@ async def logout() -> LogoutResponse:
 
 
 @router.post("/register", response_model=RegisterResponse)
-async def register(user: User) -> RegisterResponse:
+async def register(user: RegisterCredentials) -> RegisterResponse:
     # Load user to db encrypting password
     # Simulación de registro
     return RegisterResponse(
