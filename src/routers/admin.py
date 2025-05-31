@@ -1,8 +1,15 @@
 from fastapi import APIRouter
+from starlette import status
+
+from src.models.admin import AdminResponse
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 
 
-@router.get("/")
+@router.get("/", response_model=AdminResponse)
 async def admin():
-    return {"message": "Login"}
+    return AdminResponse(
+        message="Admin login.",
+        status_code=status.HTTP_202_ACCEPTED,
+        is_admin=True,
+    )
