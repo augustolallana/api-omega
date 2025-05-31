@@ -11,9 +11,13 @@ class LoginCredentials(BaseModel):
     # TODO add encryption. Check bcrypt.
 
 
+class RegisterResponse(BaseResponse):
+    user: User
+
+
 class LoginResponse(BaseResponse):
     bearer: str
 
 
-class RegisterResponse(BaseResponse):
+class LogoutResponse(BaseResponse):
     user: User

@@ -1,14 +1,18 @@
 from fastapi import APIRouter
 from starlette import status
 
-from src.models.auth import LoginCredentials, LoginResponse, RegisterResponse
-from src.models.base_response import BaseResponse
+from src.models.auth import (
+    LoginCredentials,
+    LoginResponse,
+    LogoutResponse,
+    RegisterResponse,
+)
 from src.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login")
+@router.post("/login", response_model=LoginResponse)
 async def login(creds: LoginCredentials) -> LoginResponse:
     # Simulación de autenticación
     # Check creds
@@ -22,14 +26,15 @@ async def login(creds: LoginCredentials) -> LoginResponse:
 
 
 # TODO check header parameters
-@router.post("/logout")
-async def logout() -> BaseResponse:
-    return BaseResponse(
-        message="User logged out", status_code=status.HTTP_200_OK
+@router.post("/logout", response_model=LogoutResponse)
+async def logout() -> LogoutResponse:
+    u = User(id=1, password="123", email="a@b.c")
+    return LogoutResponse(
+        message="User logged out.", status_code=status.HTTP_200_OK, user=u
     )
 
 
-@router.post("/register")
+@router.post("/register", response_model=RegisterResponse)
 async def register(user: User) -> RegisterResponse:
     # Load user to db encrypting password
     # Simulación de registro

@@ -8,13 +8,12 @@ Query object has attribute pattern that allows for regex
 over query parameters
 """
 
-from src.models.base_response import BaseResponse
 from src.models.product import Product, ProductsResponse
 
 router = APIRouter(prefix="/products", tags=["products"])
 
 
-@router.get("/", response_model=BaseResponse)
+@router.get("/", response_model=ProductsResponse)
 async def get_products() -> ProductsResponse:
     # Retrieve from db
     products = []
