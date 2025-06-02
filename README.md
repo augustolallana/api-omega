@@ -2,16 +2,77 @@
 
 This is a Fastapi project that connects with Google AppSheets.
 
-## Steps to deploy
+## Database Setup
+
+The project uses PostgreSQL as the database. You can deploy it using Docker:
+
+1. Create a `.env` file in the project root with your database credentials:
+   ```env
+   POSTGRES_USER=username
+   POSTGRES_PASSWORD=password
+   POSTGRES_DB=api_omega
+   POSTGRES_HOST=localhost
+   POSTGRES_PORT=5432
+   ```
+
+2. Start the database container:
+   ```bash
+   docker-compose up -d
+   ```
+
+3. Verify the database is running:
+   ```bash
+   docker-compose ps
+   ```
+
+The database will be accessible at:
+- Host: localhost
+- Port: 5432
+- Database: api_omega (or your custom name)
+- Username: your_username
+- Password: your_password
+
+## Project Deployment
+
 1. Clone the repository
 2. Download [uv](https://docs.astral.sh/uv/) if necessary.
 3. Run `uv sync` to download the dependencies.
 4. Run `make prod` to deploy the server. The terminal will show the host and port.
 
-
-## Before commiting to main
+## Development
 
 Make sure to test in development mode. To do so run `make dev`. 
 Once the changes are sufficient format your files with `make format`. 
 
-In the near future pull requests will be a must before merging to main. 
+In the near future pull requests will be a must before merging to main.
+
+## Database Management
+
+### Backup
+To backup your database:
+```bash
+docker-compose exec db pg_dump -U your_username api_omega > backup.sql
+```
+
+### Restore
+To restore from a backup:
+```bash
+docker-compose exec -T db psql -U your_username api_omega < backup.sql
+```
+
+### View Logs
+To view database logs:
+```bash
+docker-compose logs db
+```
+
+### Stop Database
+To stop the database:
+```bash
+docker-compose down
+```
+
+To stop and remove all data (WARNING: this will delete all data!):
+```bash
+docker-compose down -v
+``` 
