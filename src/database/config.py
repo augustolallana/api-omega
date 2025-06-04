@@ -10,9 +10,11 @@ engine = create_engine(
     echo=False,  # Set to True to see SQL queries in console
 )
 
+
 def create_db_and_tables() -> None:
     """Create database tables for all SQLModel models."""
     SQLModel.metadata.create_all(engine)
+
 
 def get_session() -> Generator[Session, None, None]:
     """Dependency for database sessions."""
