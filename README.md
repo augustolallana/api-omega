@@ -8,13 +8,13 @@ The project uses PostgreSQL as the database. You can deploy it using Docker:
 
 1. Create a `.env` file in the project root with your database credentials:
    ```env
-   POSTGRES_USER=username
-   POSTGRES_PASSWORD=password
-   POSTGRES_DB=api_omega
-   POSTGRES_HOST=localhost
-   POSTGRES_PORT=5432
+   POSTGRES_USER=<username>
+   POSTGRES_PASSWORD=<password>
+   POSTGRES_DB=<db-name>
+   POSTGRES_HOST=<host>
+   POSTGRES_PORT=<port>
    ```
-
+   For host and port it is recommended to use `localhost` and port `5432`.
 2. Start the database container:
    ```bash
    docker-compose up -d
@@ -28,9 +28,9 @@ The project uses PostgreSQL as the database. You can deploy it using Docker:
 The database will be accessible at:
 - Host: localhost
 - Port: 5432
-- Database: api_omega (or your custom name)
-- Username: your_username
-- Password: your_password
+- Database: `<db-name>`
+- Username: `<username>`
+- Password: `<password>`
 
 ## Project Deployment
 
@@ -51,13 +51,13 @@ In the near future pull requests will be a must before merging to main.
 ### Backup
 To backup your database:
 ```bash
-docker-compose exec db pg_dump -U your_username api_omega > backup.sql
+docker-compose exec db pg_dump -U <username> <db-name> > backup.sql
 ```
 
 ### Restore
 To restore from a backup:
 ```bash
-docker-compose exec -T db psql -U your_username api_omega < backup.sql
+docker-compose exec -T db psql -U <username> <db-name> < backup.sql
 ```
 
 ### View Logs
@@ -72,7 +72,9 @@ To stop the database:
 docker-compose down
 ```
 
-To stop and remove all data (WARNING: this will delete all data!):
+To stop and remove all data 
+> [!WARNING]
+> This will delete all data!
 ```bash
 docker-compose down -v
 ``` 

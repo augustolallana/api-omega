@@ -24,6 +24,7 @@ class Settings(BaseSettings):
             f"/{self.POSTGRES_DB}"
         )
 
+    # API settings
     API_BASE_PATH: str = f"/api/{API_VERSION.V1}"
     PROJECT_NAME: str = "API Omega"
 
