@@ -26,8 +26,8 @@ The project uses PostgreSQL as the database. You can deploy it using Docker:
    ```
 
 The database will be accessible at:
-- Host: localhost
-- Port: 5432
+- Host: `<host>`
+- Port: `<port>`
 - Database: `<db-name>`
 - Username: `<username>`
 - Password: `<password>`
