@@ -1,5 +1,5 @@
 import uuid
-from datetime import datetime
+from datetime import datetime, timezone
 from enum import Enum
 from typing import List, Optional
 
@@ -51,8 +51,12 @@ class User(SQLModel, table=True):
     first_name: str
     last_name: str
     phone_number: str
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     addresses: List["Address"] = Relationship(back_populates="user")
     orders: List["Order"] = Relationship(back_populates="user")
@@ -73,8 +77,12 @@ class Address(SQLModel, table=True):
     postal_code: str
     extra: Optional[str] = None
     is_default: bool = Field(default=False)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     user: User = Relationship(back_populates="addresses")
     orders: List["Order"] = Relationship(back_populates="address")
@@ -86,8 +94,12 @@ class Category(SQLModel, table=True):
     )
     name: str = Field(unique=True, index=True)
     description: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     products: List["Product"] = Relationship(back_populates="category")
 
@@ -98,10 +110,19 @@ class Brand(SQLModel, table=True):
     )
     name: str = Field(unique=True, index=True)
     description: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     products: List["Product"] = Relationship(back_populates="brand")
+
+
+class ProductTag(SQLModel, table=True):
+    product_id: str = Field(foreign_key="product.id", primary_key=True)
+    tag_id: str = Field(foreign_key="tag.id", primary_key=True)
 
 
 class Tag(SQLModel, table=True):
@@ -109,16 +130,13 @@ class Tag(SQLModel, table=True):
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
     name: str = Field(unique=True, index=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     products: List["Product"] = Relationship(
         back_populates="tags", link_model=ProductTag
     )
-
-
-class ProductTag(SQLModel, table=True):
-    product_id: str = Field(foreign_key="product.id", primary_key=True)
-    tag_id: str = Field(foreign_key="tag.id", primary_key=True)
 
 
 class Image(SQLModel, table=True):
@@ -129,7 +147,9 @@ class Image(SQLModel, table=True):
     description: str
     url: str
     is_primary: bool = Field(default=False)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     product: "Product" = Relationship(back_populates="images")
 
@@ -143,8 +163,12 @@ class Promotion(SQLModel, table=True):
     discount_percentage: float
     start_date: datetime
     end_date: datetime
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     products: List["Product"] = Relationship(back_populates="promotion")
 
@@ -164,8 +188,12 @@ class Product(SQLModel, table=True):
     )
     stock: int
     expiration_date: datetime
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     category: Category = Relationship(back_populates="products")
     brand: Brand = Relationship(back_populates="products")
@@ -183,8 +211,12 @@ class Cart(SQLModel, table=True):
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
     user_id: str = Field(foreign_key="user.id", unique=True, index=True)
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     user: User = Relationship(back_populates="cart")
     items: List["CartItem"] = Relationship(back_populates="cart")
@@ -197,8 +229,12 @@ class CartItem(SQLModel, table=True):
     cart_id: str = Field(foreign_key="cart.id", index=True)
     product_id: str = Field(foreign_key="product.id", index=True)
     quantity: int
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     cart: Cart = Relationship(back_populates="items")
     product: Product = Relationship(back_populates="cart_items")
@@ -211,8 +247,12 @@ class PaymentMethod(SQLModel, table=True):
     type: str
     name: str
     description: Optional[str] = None
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     orders: List["Order"] = Relationship(back_populates="payment_method")
 
@@ -226,8 +266,12 @@ class Order(SQLModel, table=True):
     payment_method_id: str = Field(foreign_key="paymentmethod.id", index=True)
     status: OrderStatus = Field(default=OrderStatus.PENDING)
     total_amount: float
-    created_at: datetime = Field(default_factory=datetime.utcnow)
-    updated_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     user: User = Relationship(back_populates="orders")
     address: Address = Relationship(back_populates="orders")
@@ -243,7 +287,9 @@ class OrderItem(SQLModel, table=True):
     product_id: str = Field(foreign_key="product.id", index=True)
     quantity: int
     price_at_time: float
-    created_at: datetime = Field(default_factory=datetime.utcnow)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
     order: Order = Relationship(back_populates="items")
     product: Product = Relationship(back_populates="order_items")
