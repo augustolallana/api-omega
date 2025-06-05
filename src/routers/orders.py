@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from starlette import status
 
-from src.models.order import (
+from src.models import (
     Address,
     Order,
     OrderResponse,

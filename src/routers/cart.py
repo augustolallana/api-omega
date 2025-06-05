@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from starlette import status
 
-from src.models.cart import Cart, CartItem, CartResponse
+from src.models import Cart, CartItem, CartResponse
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 

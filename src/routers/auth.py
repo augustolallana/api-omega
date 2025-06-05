@@ -1,14 +1,14 @@
 from fastapi import APIRouter
 from starlette import status
 
-from src.models.auth import (
+from src.models import (
     LoginCredentials,
     LoginResponse,
     LogoutResponse,
     RegisterCredentials,
     RegisterResponse,
+    User,
 )
-from src.models.user import User
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
