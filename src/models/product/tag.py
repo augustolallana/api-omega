@@ -8,6 +8,13 @@ if TYPE_CHECKING:
     from src.models.product.product import Product
 
 
+class ProductTag(SQLModel, table=True):
+    """Link table for product-tag many-to-many relationship."""
+
+    product_id: str = Field(foreign_key="product.id", primary_key=True)
+    tag_id: str = Field(foreign_key="tag.id", primary_key=True)
+
+
 class Tag(SQLModel, table=True):
     """Tag model for the database."""
 
@@ -25,10 +32,3 @@ class Tag(SQLModel, table=True):
     products: List["Product"] = Relationship(
         back_populates="tags", link_model=ProductTag
     )
-
-
-class ProductTag(SQLModel, table=True):
-    """Link table for product-tag many-to-many relationship."""
-
-    product_id: str = Field(foreign_key="product.id", primary_key=True)
-    tag_id: str = Field(foreign_key="tag.id", primary_key=True)

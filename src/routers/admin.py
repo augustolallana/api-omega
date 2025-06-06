@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from starlette import status
 
-from src.models import AdminResponse
+from src.schemas import AdminResponse
 
 router = APIRouter(prefix="/admin", tags=["admin"])
 

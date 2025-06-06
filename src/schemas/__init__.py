@@ -1,5 +1,13 @@
 from src.schemas.admin import AdminResponse
-from src.schemas.auth import Token, TokenData
+from src.schemas.auth import (
+    LoginCredentials,
+    LoginResponse,
+    LogoutResponse,
+    RegisterCredentials,
+    RegisterResponse,
+    Token,
+    TokenData,
+)
 from src.schemas.base import BaseResponse
 from src.schemas.cart import (
     CartItemListResponse,
@@ -16,6 +24,7 @@ from src.schemas.order import (
     OrderResponse,
     PaymentMethodListResponse,
     PaymentMethodResponse,
+    Province,
 )
 from src.schemas.product import (
     BrandListResponse,
@@ -39,6 +48,11 @@ __all__ = [
     # Auth schemas
     "Token",
     "TokenData",
+    "LoginCredentials",
+    "LoginResponse",
+    "LogoutResponse",
+    "RegisterCredentials",
+    "RegisterResponse",
     # Admin schemas
     "AdminResponse",
     # User schemas
@@ -57,6 +71,7 @@ __all__ = [
     "AddressListResponse",
     "PaymentMethodResponse",
     "PaymentMethodListResponse",
+    "Province",
     # Product schemas
     "ProductResponse",
     "ProductListResponse",
