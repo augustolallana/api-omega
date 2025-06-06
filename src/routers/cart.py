@@ -1,46 +1,46 @@
 from fastapi import APIRouter
 from starlette import status
 
-from src.models import Cart, CartItem
-from src.schemas import CartResponse
+from src.schemas.cart import CartResponse
 
 router = APIRouter(prefix="/cart", tags=["cart"])
 
 
 @router.get("/", response_model=CartResponse)
 async def get_cart() -> CartResponse:
-    c = Cart(id="cart-1", items=[])
-    return CartResponse(message="OK.", status_code=status.HTTP_200_OK, cart=c)
+    # Simulate getting cart
+    return CartResponse(
+        message="Cart retrieved successfully.",
+        status_code=status.HTTP_200_OK,
+        cart=None,
+    )
 
 
 @router.post("/items", response_model=CartResponse)
-async def add_item(cart_item: CartItem) -> CartResponse:
-    # Simular cart actualizado
-    c = Cart(id="cart-1", items=[cart_item])
+async def add_item() -> CartResponse:
+    # Simulate adding item
     return CartResponse(
-        message="Item added to cart.",
-        status_code=status.HTTP_200_OK,
-        item=cart_item,
-        cart=c,
+        message="Item added successfully.",
+        status_code=status.HTTP_201_CREATED,
+        cart=None,
     )
 
 
-@router.put("/items/{item_id}", response_model=CartResponse)
-async def update_item(item_id: str, cart_item: CartItem) -> CartResponse:
-    c = Cart(id="cart-1", items=[cart_item])
+@router.put("/items/{id}", response_model=CartResponse)
+async def update_item() -> CartResponse:
+    # Simulate updating item
     return CartResponse(
-        message="Item updated in cart successfully.",
+        message="Item updated successfully.",
         status_code=status.HTTP_200_OK,
-        item=cart_item,
-        cart=c,
+        cart=None,
     )
 
 
-@router.delete("/items/{item_id}", response_model=CartResponse)
-async def delete_item(item_id: str) -> CartResponse:
-    c = Cart(id="cart-1", items=[])
+@router.delete("/items/{id}", response_model=CartResponse)
+async def delete_item() -> CartResponse:
+    # Simulate deleting item
     return CartResponse(
-        message="Item removed from cart successfully.",
+        message="Item deleted successfully.",
         status_code=status.HTTP_200_OK,
-        cart=c,
+        cart=None,
     )

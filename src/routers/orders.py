@@ -1,9 +1,10 @@
 from fastapi import APIRouter
 from starlette import status
 
-from src.models import Address, Order, PaymentMethod
-from src.schemas import OrderResponse
-from src.schemas.order import Province
+from src.models.order.address import Address, Province
+from src.models.order.order import Order
+from src.models.order.payment_method import PaymentMethod
+from src.schemas.order import OrderResponse
 
 router = APIRouter(prefix="/orders", tags=["orders"])
 

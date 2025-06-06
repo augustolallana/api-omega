@@ -18,7 +18,6 @@ class OrderItem(SQLModel, table=True):
     order_id: str = Field(foreign_key="order.id", index=True)
     product_id: str = Field(foreign_key="product.id", index=True)
     quantity: int
-    price: float
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )

@@ -8,8 +8,8 @@ Query object has attribute pattern that allows for regex
 over query parameters
 """
 
-from src.models import Product
-from src.schemas import ProductListResponse, ProductResponse
+from src.models.product.product import Product
+from src.schemas.product import ProductListResponse, ProductResponse
 
 router = APIRouter(prefix="/products", tags=["products"])
 
