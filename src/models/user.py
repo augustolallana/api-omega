@@ -1,15 +1,37 @@
-from sqlmodel import Field, SQLModel
+import uuid
+from datetime import datetime, timezone
+from typing import TYPE_CHECKING, List
 
-from src.models.base_response import BaseResponse
+from sqlmodel import Field, Relationship, SQLModel
+
+if TYPE_CHECKING:
+    from src.models.cart.cart import Cart
+    from src.models.order.address import Address
+    from src.models.order.order import Order
+    from src.models.order.payment_method import PaymentMethod
 
 
 class User(SQLModel, table=True):
     """User model for the database."""
 
-    id: str = Field(primary_key=True)
-    password: str
+    id: str = Field(
+        default_factory=lambda: str(uuid.uuid4()), primary_key=True
+    )
     email: str = Field(unique=True, index=True)
+    username: str = Field(unique=True, index=True)
+    hashed_password: str
+    is_active: bool = Field(default=True)
+    is_superuser: bool = Field(default=False)
+    created_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
+    updated_at: datetime = Field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
 
-
-class UserResponse(BaseResponse):
-    user: User
+    cart: "Cart" = Relationship(back_populates="user")
+    orders: List["Order"] = Relationship(back_populates="user")
+    addresses: List["Address"] = Relationship(back_populates="user")
+    payment_methods: List["PaymentMethod"] = Relationship(
+        back_populates="user"
+    )
