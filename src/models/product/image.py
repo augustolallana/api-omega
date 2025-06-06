@@ -9,14 +9,11 @@ if TYPE_CHECKING:
 
 
 class Image(SQLModel, table=True):
-    """Image model for the database."""
-
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
     url: str
     alt_text: str | None = None
-    is_primary: bool = Field(default=False)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )

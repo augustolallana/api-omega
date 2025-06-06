@@ -9,8 +9,6 @@ if TYPE_CHECKING:
 
 
 class Brand(SQLModel, table=True):
-    """Brand model for the database."""
-
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )

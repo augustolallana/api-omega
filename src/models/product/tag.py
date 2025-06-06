@@ -16,8 +16,6 @@ class ProductTag(SQLModel, table=True):
 
 
 class Tag(SQLModel, table=True):
-    """Tag model for the database."""
-
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )

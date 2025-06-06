@@ -42,7 +42,9 @@ class Product(SQLModel, table=True):
 
     category: "Category" = Relationship(back_populates="products")
     brand: "Brand" = Relationship(back_populates="products")
-    promotion: Optional["Promotion"] = Relationship(back_populates="products")
+    promotion: Optional["Promotion"] = Relationship(
+        back_populates="products", link_model=ProductPromotion
+    )
     images: List["Image"] = Relationship(back_populates="product")
     tags: List["Tag"] = Relationship(
         back_populates="products", link_model=ProductTag

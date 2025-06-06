@@ -16,17 +16,15 @@ class ProductPromotion(SQLModel, table=True):
 
 
 class Promotion(SQLModel, table=True):
-    """Promotion model for the database."""
-
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
     name: str
     description: str | None = None
     discount_percentage: float
+    minimun_number_of_products: int
     start_date: datetime
     end_date: datetime
-    is_active: bool = Field(default=True)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
