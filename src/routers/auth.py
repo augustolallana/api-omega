@@ -1,7 +1,6 @@
 from fastapi import APIRouter
 from starlette import status
 
-from src.models.user import User
 from src.schemas.auth import (
     LoginCredentials,
     LoginResponse,

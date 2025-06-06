@@ -2,7 +2,6 @@ from typing import Optional
 
 from pydantic import BaseModel
 
-from src.models.user import User
 from src.schemas.base import BaseResponse
 
 
@@ -25,7 +24,7 @@ class LoginResponse(BaseResponse):
 
 
 class LogoutResponse(BaseResponse):
-    user: User
+    user: str  # User
 
 
 class RegisterCredentials(BaseModel):

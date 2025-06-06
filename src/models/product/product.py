@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, List, Optional
 
 from sqlmodel import Field, Relationship, SQLModel
 
+from src.models.product.promotion import ProductPromotion
 from src.models.product.tag import ProductTag
 
 if TYPE_CHECKING:
@@ -12,7 +13,7 @@ if TYPE_CHECKING:
     from src.models.product.brand import Brand
     from src.models.product.category import Category
     from src.models.product.image import Image
-    from src.models.product.promotion import ProductPromotion, Promotion
+    from src.models.product.promotion import Promotion
     from src.models.product.tag import Tag
 
 

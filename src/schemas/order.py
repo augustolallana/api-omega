@@ -3,8 +3,6 @@ from typing import List
 
 from pydantic import BaseModel
 
-from src.models.order.order import Order
-from src.models.order.order_item import OrderItem
 from src.schemas.base import BaseResponse
 
 
@@ -50,16 +48,16 @@ class Address(BaseModel):
 
 
 class OrderResponse(BaseResponse):
-    order: Order
+    order: str  # Order
 
 
 class OrderListResponse(BaseResponse):
-    orders: List[Order]
+    orders: str  # List[Order]
 
 
 class OrderItemResponse(BaseResponse):
-    order_item: OrderItem
+    order_item: str  # OrderItem
 
 
 class OrderItemListResponse(BaseResponse):
-    order_items: List[OrderItem]
+    order_items: str  # List[OrderItem]

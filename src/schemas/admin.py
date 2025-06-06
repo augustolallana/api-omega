@@ -1,6 +1,5 @@
-from src.models.user import User
 from src.schemas.base import BaseResponse
 
 
 class AdminResponse(BaseResponse):
-    admin: User
+    admin: str  # User

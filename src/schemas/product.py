@@ -1,57 +1,51 @@
 from typing import List
 
-from src.models.product.brand import Brand
-from src.models.product.category import Category
-from src.models.product.image import Image
-from src.models.product.product import Product
-from src.models.product.promotion import Promotion
-from src.models.product.tag import Tag
 from src.schemas.base import BaseResponse
 
 
 class ProductResponse(BaseResponse):
-    product: Product
+    product: str  # Product
 
 
 class ProductListResponse(BaseResponse):
-    products: List[Product]
+    products: str  # List[Product]
 
 
 class CategoryResponse(BaseResponse):
-    category: Category
+    category: str  # Category
 
 
 class CategoryListResponse(BaseResponse):
-    categories: List[Category]
+    categories: str  # List[Category]
 
 
 class BrandResponse(BaseResponse):
-    brand: Brand
+    brand: str  # Brand
 
 
 class BrandListResponse(BaseResponse):
-    brands: List[Brand]
+    brands: str  # List[Brand]
 
 
 class TagResponse(BaseResponse):
-    tag: Tag
+    tag: str  # Tag
 
 
 class TagListResponse(BaseResponse):
-    tags: List[Tag]
+    tags: str  # List[Tag]
 
 
 class ImageResponse(BaseResponse):
-    image: Image
+    image: str  # Image
 
 
 class ImageListResponse(BaseResponse):
-    images: List[Image]
+    images: str  # List[Image]
 
 
 class PromotionResponse(BaseResponse):
-    promotion: Promotion
+    promotion: str  # Promotion
 
 
 class PromotionListResponse(BaseResponse):
-    promotions: List[Promotion]
+    promotions: str  # List[Promotion]
