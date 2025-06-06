@@ -3,6 +3,4 @@ from src.schemas.base import BaseResponse
 
 
 class AdminResponse(BaseResponse):
-    """Admin response model."""
-
     admin: User

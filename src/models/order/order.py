@@ -4,12 +4,12 @@ from typing import TYPE_CHECKING, List
 
 from sqlmodel import Field, Relationship, SQLModel
 
-from src.models.order.address import Address
 from src.models.order.order_item import OrderItem
 
 if TYPE_CHECKING:
-    from src.models.order.payment_method import PaymentMethod
     from src.models.user import User
+
+from src.schemas.order import Address, PaymentMethod
 
 
 class Order(SQLModel, table=True):
@@ -19,8 +19,8 @@ class Order(SQLModel, table=True):
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
     user_id: str = Field(foreign_key="user.id", index=True)
-    address_id: str = Field(foreign_key="address.id", index=True)
-    payment_method_id: str = Field(foreign_key="paymentmethod.id", index=True)
+    address: Address
+    payment_method: PaymentMethod
     total_amount: float
     status: str
     created_at: datetime = Field(
@@ -31,6 +31,4 @@ class Order(SQLModel, table=True):
     )
 
     user: "User" = Relationship(back_populates="orders")
-    address: Address = Relationship(back_populates="orders")
-    payment_method: "PaymentMethod" = Relationship(back_populates="orders")
     items: List["OrderItem"] = Relationship(back_populates="order")
