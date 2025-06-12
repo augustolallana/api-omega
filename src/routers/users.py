@@ -1,17 +1,16 @@
 from fastapi import APIRouter
 from starlette import status
 
-from src.models.user import User
-from src.schemas.user import UserResponse
+from src.schemas.base import BaseResponse
 
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("/me", response_model=UserResponse)
-async def get_current_user() -> UserResponse:
+@router.get("/me", response_model=BaseResponse)
+async def get_current_user() -> BaseResponse:
     # Simulate getting current user
-    return UserResponse(
+    return BaseResponse(
         message="User retrieved successfully.",
         status_code=status.HTTP_200_OK,
-        user=None,
+        detail={"user": "user"},
     )

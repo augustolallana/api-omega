@@ -3,7 +3,7 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 
 from src.database.config import create_db_and_tables
-from src.routers import admin, auth, cart, checkout, orders, products, users
+from src.routers import auth, cart, checkout, orders, products, users
 from src.settings import settings
 
 
@@ -21,7 +21,6 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-app.include_router(admin.router)
 app.include_router(auth.router)
 app.include_router(cart.router)
 app.include_router(checkout.router)
