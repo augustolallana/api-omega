@@ -2,8 +2,10 @@ from enum import Enum
 
 from pydantic import BaseModel
 
-from src.models.base_response import BaseResponse
-from src.models.cart import CartItem
+
+class PaymentMethod(str, Enum):
+    TRANSFER = "transfer"
+    MERCADOPAGO = "mercadopago"
 
 
 class Province(str, Enum):
@@ -37,25 +39,6 @@ class Address(BaseModel):
     province: Province
     city: str
     street: str
-    number: str
+    number: int
+    extra: str
     postal_code: str
-    extra: str | None = None  # documentar
-
-
-class PaymentMethod(BaseModel):
-    # TODO COMPLETAR
-    type: str  # Maybe enum
-
-
-class Order(BaseModel):
-    id: str
-    products: list[CartItem]
-    first_name: str
-    last_name: str
-    phone_number: str
-    address: Address
-    payment_method: PaymentMethod
-
-
-class OrderResponse(BaseResponse):
-    order: Order

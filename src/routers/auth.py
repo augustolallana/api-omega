@@ -1,44 +1,40 @@
 from fastapi import APIRouter
 from starlette import status
 
-from src.models import (
+from src.schemas.auth import (
     LoginCredentials,
-    LoginResponse,
-    LogoutResponse,
     RegisterCredentials,
-    RegisterResponse,
-    User,
 )
+from src.schemas.base import BaseResponse
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login", response_model=LoginResponse)
-async def login(creds: LoginCredentials) -> LoginResponse:
-    # Simulación de autenticación
-    # Check creds
-    # TODO add cookies or jwt
-
-    return LoginResponse(
-        message="Login successfully",
+@router.post("/login", response_model=BaseResponse)
+async def login(credentials: LoginCredentials) -> BaseResponse:
+    # Simulate login
+    return BaseResponse(
+        message="Login successful.",
         status_code=status.HTTP_200_OK,
-        bearer="example-token",
+        detail={"credentials": credentials, "bearer": "dummy_token"},
     )
 
 
-# TODO check header parameters
-@router.post("/logout", response_model=LogoutResponse)
-async def logout() -> LogoutResponse:
-    u = User(id=1, password="123", email="a@b.c")
-    return LogoutResponse(
-        message="User logged out.", status_code=status.HTTP_200_OK, user=u
+@router.post("/logout", response_model=BaseResponse)
+async def logout() -> BaseResponse:
+    # Simulate logout
+    return BaseResponse(
+        message="Logout successful.",
+        status_code=status.HTTP_200_OK,
+        detail={"user.is_active": False},
     )
 
 
-@router.post("/register", response_model=RegisterResponse)
-async def register(user: RegisterCredentials) -> RegisterResponse:
-    # Load user to db encrypting password
-    # Simulación de registro
-    return RegisterResponse(
-        message="User created.", status_code=status.HTTP_201_CREATED, user=user
+@router.post("/register", response_model=BaseResponse)
+async def register(credentials: RegisterCredentials) -> BaseResponse:
+    # Simulate registration
+    return BaseResponse(
+        message="Registration successful.",
+        status_code=status.HTTP_201_CREATED,
+        detail={"user.id": "user.id", "credentials": credentials},
     )
