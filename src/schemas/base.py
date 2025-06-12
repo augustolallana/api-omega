@@ -4,8 +4,6 @@ from pydantic import BaseModel
 
 
 class BaseResponse(BaseModel):
-    """Base response model for all API responses."""
-
-    success: bool = True
+    status_code: int
     message: Optional[str] = None
-    data: Optional[Any] = None
+    detail: Optional[Any] = None

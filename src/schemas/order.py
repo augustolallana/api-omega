@@ -1,9 +1,6 @@
 from enum import Enum
-from typing import List
 
 from pydantic import BaseModel
-
-from src.schemas.base import BaseResponse
 
 
 class PaymentMethod(str, Enum):
@@ -45,19 +42,3 @@ class Address(BaseModel):
     number: int
     extra: str
     postal_code: str
-
-
-class OrderResponse(BaseResponse):
-    order: str  # Order
-
-
-class OrderListResponse(BaseResponse):
-    orders: str  # List[Order]
-
-
-class OrderItemResponse(BaseResponse):
-    order_item: str  # OrderItem
-
-
-class OrderItemListResponse(BaseResponse):
-    order_items: str  # List[OrderItem]
