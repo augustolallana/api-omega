@@ -6,9 +6,7 @@ from sqlmodel import Field, Relationship, SQLModel
 
 if TYPE_CHECKING:
     from src.models.cart.cart import Cart
-    from src.models.order.address import Address
     from src.models.order.order import Order
-    from src.models.order.payment_method import PaymentMethod
 
 
 class User(SQLModel, table=True):
@@ -30,7 +28,3 @@ class User(SQLModel, table=True):
 
     cart: "Cart" = Relationship(back_populates="user")
     orders: List["Order"] = Relationship(back_populates="user")
-    addresses: List["Address"] = Relationship(back_populates="user")
-    payment_methods: List["PaymentMethod"] = Relationship(
-        back_populates="user"
-    )
