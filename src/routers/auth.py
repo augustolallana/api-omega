@@ -3,39 +3,38 @@ from starlette import status
 
 from src.schemas.auth import (
     LoginCredentials,
-    LoginResponse,
-    LogoutResponse,
     RegisterCredentials,
-    RegisterResponse,
 )
-from src.schemas.user import UserResponse
+from src.schemas.base import BaseResponse
 
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 
-@router.post("/login", response_model=LoginResponse)
-async def login(credentials: LoginCredentials) -> LoginResponse:
+@router.post("/login", response_model=BaseResponse)
+async def login(credentials: LoginCredentials) -> BaseResponse:
     # Simulate login
-    return LoginResponse(
+    return BaseResponse(
         message="Login successful.",
         status_code=status.HTTP_200_OK,
-        bearer="dummy_token",
+        detail={"credentials": credentials, "bearer": "dummy_token"},
     )
 
 
-@router.post("/logout", response_model=LogoutResponse)
-async def logout() -> LogoutResponse:
+@router.post("/logout", response_model=BaseResponse)
+async def logout() -> BaseResponse:
     # Simulate logout
-    return LogoutResponse(
-        message="Logout successful.", status_code=status.HTTP_200_OK, user=None
+    return BaseResponse(
+        message="Logout successful.",
+        status_code=status.HTTP_200_OK,
+        detail={"user.is_active": False},
     )
 
 
-@router.post("/register", response_model=RegisterResponse)
-async def register(credentials: RegisterCredentials) -> RegisterResponse:
+@router.post("/register", response_model=BaseResponse)
+async def register(credentials: RegisterCredentials) -> BaseResponse:
     # Simulate registration
-    return RegisterResponse(
+    return BaseResponse(
         message="Registration successful.",
         status_code=status.HTTP_201_CREATED,
-        user=credentials,
+        detail={"user.id": "user.id", "credentials": credentials},
     )

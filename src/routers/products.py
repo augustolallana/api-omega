@@ -9,47 +9,47 @@ over query parameters
 """
 
 from src.models.product.product import Product
-from src.schemas.product import ProductListResponse, ProductResponse
+from src.schemas.base import BaseResponse
 
 router = APIRouter(prefix="/products", tags=["products"])
 
 
-@router.get("/", response_model=ProductListResponse)
-async def get_products() -> ProductListResponse:
+@router.get("/", response_model=BaseResponse)
+async def get_products() -> BaseResponse:
     # Retrieve from db
     products = []
-    return ProductListResponse(
+    return BaseResponse(
         message="Ok.", status_code=status.HTTP_200_OK, products=products
     )
 
 
-@router.post("/", response_model=ProductResponse)
-async def add_product(product: Product) -> ProductResponse:
+@router.post("/", response_model=BaseResponse)
+async def add_product(product: Product) -> BaseResponse:
     # Add to db
-    return ProductResponse(
+    return BaseResponse(
         message="Product added successfully.",
         status_code=status.HTTP_201_CREATED,
-        product=product,
+        detail={"product": product},
     )
 
 
-@router.put("/{id}", response_model=ProductResponse)
-async def update_product(product: Product) -> ProductResponse:
+@router.put("/{id}", response_model=BaseResponse)
+async def update_product(product: Product) -> BaseResponse:
     # Retrieve from db
     # Simulate old_product = ...
-    return ProductResponse(
+    return BaseResponse(
         message="Product updated successfully.",
         status_code=status.HTTP_200_OK,
-        product=product,
+        detail={"product": product},
     )
 
 
-@router.delete("/{id}", response_model=ProductResponse)
-async def delete_product(id: str) -> ProductResponse:
+@router.delete("/{id}", response_model=BaseResponse)
+async def delete_product(id: str) -> BaseResponse:
     # Remove from db
     # Simulate old_product = ...
-    return ProductResponse(
+    return BaseResponse(
         message="Product deleted successfully.",
         status_code=status.HTTP_200_OK,
-        product=None,
+        detail={"product.id": "product.id"},
     )
