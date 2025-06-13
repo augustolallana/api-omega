@@ -14,15 +14,11 @@ The project uses PostgreSQL as the database. You can deploy it using Docker:
    POSTGRES_HOST=<host>
    POSTGRES_PORT=<port>
    ```
+
    For host and port it is recommended to use `localhost` and port `5432`.
 2. Start the database container:
    ```bash
-   docker-compose up -d
-   ```
-
-3. Verify the database is running:
-   ```bash
-   docker-compose ps
+   make deploy-db
    ```
 
 The database will be accessible at:
@@ -48,16 +44,24 @@ In the near future pull requests will be a must before merging to main.
 
 ## Database Management
 
-### Backup
-To backup your database:
+### Start Database
+To start the database:
 ```bash
-docker-compose exec db pg_dump -U <username> <db-name> > backup.sql
+make deploy-db
 ```
 
-### Restore
-To restore from a backup:
+### Reset Database
+To reset the database (stops containers and removes all data):
+> [!WARNING]
+> This will delete all data!
 ```bash
-docker-compose exec -T db psql -U <username> <db-name> < backup.sql
+make reset-db
+```
+
+### Stop Database
+To stop the database:
+```bash
+make shutdown-db
 ```
 
 ### View Logs
@@ -66,15 +70,14 @@ To view database logs:
 docker-compose logs db
 ```
 
-### Stop Database
-To stop the database:
+### Backup
+To backup your database:
 ```bash
-docker-compose down
+docker-compose exec db pg_dump -U ${POSTGRES_USER} ${POSTGRES_DB} > backup.sql
 ```
 
-To stop and remove all data 
-> [!WARNING]
-> This will delete all data!
+### Restore
+To restore from a backup:
 ```bash
-docker-compose down -v
-``` 
+docker-compose exec -T db psql -U ${POSTGRES_USER} ${POSTGRES_DB} < backup.sql
+```
