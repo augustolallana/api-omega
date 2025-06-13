@@ -22,23 +22,23 @@ The project uses PostgreSQL as the database. You can deploy it using Docker:
    ```
 
 The database will be accessible at:
-- Host: <host>
-- Port: <port>
-- Database: <db-name>
-- Username: <username>
-- Password: <password>
+- Host: `<host>`
+- Port: `<port>`
+- Database: `<db-name>`
+- Username: `<username>`
+- Password: `<password>`
 
 ## Project Deployment
 
 1. Clone the repository
 2. Download [uv](https://docs.astral.sh/uv/) if necessary.
-3. Run uv sync to download the dependencies.
-4. Run make prod to deploy the server. The terminal will show the host and port.
+3. Run `uv sync` to download the dependencies.
+4. Run `make prod` to deploy the server. The terminal will show the host and port.
 
 ## Development
 
-Make sure to test in development mode. To do so run make dev. 
-Once the changes are sufficient format your files with make format. 
+Make sure to test in development mode. To do so run `make dev`. 
+Once the changes are sufficient format your files with `make format`. 
 
 In the near future pull requests will be a must before merging to main.
 
