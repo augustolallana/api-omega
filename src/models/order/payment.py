@@ -1,26 +1,26 @@
 import uuid
 from datetime import datetime, timezone
-from typing import TYPE_CHECKING, List
+from enum import Enum
 
-from sqlmodel import Field, Relationship, SQLModel
-
-if TYPE_CHECKING:
-    from src.models.product.product import Product
+from sqlmodel import Field, SQLModel
 
 
-class Brand(SQLModel, table=True):
-    __tablename__ = "brands"
+class PaymentMethodType(str, Enum):
+    TRANSFER = "transfer"
+    MERCADOPAGO = "mercadopago"
+
+
+class PaymentMethod(SQLModel, table=True):
+    __tablename__ = "payment_methods"
 
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
-    name: str = Field(index=True)
-    description: str
+    type: PaymentMethodType
+    details: str | None = None
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
     updated_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )
-
-    products: List["Product"] = Relationship(back_populates="brand")

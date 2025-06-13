@@ -10,13 +10,13 @@ if TYPE_CHECKING:
 
 
 class OrderItem(SQLModel, table=True):
-    """OrderItem model for the database."""
+    __tablename__ = "order_items"
 
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
-    order_id: str = Field(foreign_key="order.id", index=True)
-    product_id: str = Field(foreign_key="product.id", index=True)
+    order_id: str = Field(foreign_key="orders.id", index=True)
+    product_id: str = Field(foreign_key="products.id", index=True)
     quantity: int
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)

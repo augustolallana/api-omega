@@ -10,7 +10,7 @@ if TYPE_CHECKING:
 
 
 class User(SQLModel, table=True):
-    """User model for the database."""
+    __tablename__ = "users"
 
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True

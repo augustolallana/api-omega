@@ -18,7 +18,7 @@ if TYPE_CHECKING:
 
 
 class Product(SQLModel, table=True):
-    """Product model for the database."""
+    __tablename__ = "products"
 
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
@@ -27,10 +27,10 @@ class Product(SQLModel, table=True):
     summary: str
     description: str
     price: float
-    category_id: str = Field(foreign_key="category.id", index=True)
-    brand_id: str = Field(foreign_key="brand.id", index=True)
+    category_id: str = Field(foreign_key="categories.id", index=True)
+    brand_id: str = Field(foreign_key="brands.id", index=True)
     promotion_id: Optional[str] = Field(
-        foreign_key="promotion.id", default=None, index=True
+        foreign_key="promotions.id", default=None, index=True
     )
     stock: int
     expiration_date: datetime
