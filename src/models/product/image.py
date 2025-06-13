@@ -9,6 +9,8 @@ if TYPE_CHECKING:
 
 
 class Image(SQLModel, table=True):
+    __tablename__ = "images"
+
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
@@ -21,5 +23,5 @@ class Image(SQLModel, table=True):
         default_factory=lambda: datetime.now(timezone.utc)
     )
 
-    product_id: str = Field(foreign_key="product.id")
+    product_id: str = Field(foreign_key="products.id")
     product: "Product" = Relationship(back_populates="images")

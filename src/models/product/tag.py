@@ -11,11 +11,15 @@ if TYPE_CHECKING:
 class ProductTag(SQLModel, table=True):
     """Link table for product-tag many-to-many relationship."""
 
-    product_id: str = Field(foreign_key="product.id", primary_key=True)
-    tag_id: str = Field(foreign_key="tag.id", primary_key=True)
+    __tablename__ = "product_tags"
+
+    product_id: str = Field(foreign_key="products.id", primary_key=True)
+    tag_id: str = Field(foreign_key="tags.id", primary_key=True)
 
 
 class Tag(SQLModel, table=True):
+    __tablename__ = "tags"
+
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )

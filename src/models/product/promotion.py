@@ -11,11 +11,15 @@ if TYPE_CHECKING:
 class ProductPromotion(SQLModel, table=True):
     """Link table for product-promotion many-to-many relationship."""
 
-    product_id: str = Field(foreign_key="product.id", primary_key=True)
-    promotion_id: str = Field(foreign_key="promotion.id", primary_key=True)
+    __tablename__ = "product_promotions"
+
+    product_id: str = Field(foreign_key="products.id", primary_key=True)
+    promotion_id: str = Field(foreign_key="promotions.id", primary_key=True)
 
 
 class Promotion(SQLModel, table=True):
+    __tablename__ = "promotions"
+
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
