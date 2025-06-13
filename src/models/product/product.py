@@ -29,9 +29,6 @@ class Product(SQLModel, table=True):
     price: float
     category_id: str = Field(foreign_key="categories.id", index=True)
     brand_id: str = Field(foreign_key="brands.id", index=True)
-    promotion_id: Optional[str] = Field(
-        foreign_key="promotions.id", default=None, index=True
-    )
     stock: int
     expiration_date: datetime
     created_at: datetime = Field(
@@ -43,7 +40,7 @@ class Product(SQLModel, table=True):
 
     category: "Category" = Relationship(back_populates="products")
     brand: "Brand" = Relationship(back_populates="products")
-    promotion: Optional["Promotion"] = Relationship(
+    promotions: List["Promotion"] = Relationship(
         back_populates="products", link_model=ProductPromotion
     )
     images: List["Image"] = Relationship(back_populates="product")
