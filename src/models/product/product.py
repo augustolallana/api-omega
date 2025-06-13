@@ -18,8 +18,6 @@ if TYPE_CHECKING:
 
 
 class Product(SQLModel, table=True):
-    """Product model for the database."""
-
     __tablename__ = "products"
 
     id: str = Field(

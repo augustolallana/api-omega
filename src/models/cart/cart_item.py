@@ -10,11 +10,13 @@ if TYPE_CHECKING:
 
 
 class CartItem(SQLModel, table=True):
+    __tablename__ = "cart_items"
+
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
-    cart_id: str = Field(foreign_key="cart.id", index=True)
-    product_id: str = Field(foreign_key="product.id", index=True)
+    cart_id: str = Field(foreign_key="carts.id", index=True)
+    product_id: str = Field(foreign_key="products.id", index=True)
     quantity: int
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)

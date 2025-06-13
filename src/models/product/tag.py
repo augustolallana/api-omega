@@ -9,8 +9,6 @@ if TYPE_CHECKING:
 
 
 class ProductTag(SQLModel, table=True):
-    """Link table for product-tag many-to-many relationship."""
-
     __tablename__ = "product_tags"
 
     product_id: str = Field(foreign_key="products.id", primary_key=True)
