@@ -6,15 +6,16 @@ This is a Fastapi project that connects with Google AppSheets.
 
 The project uses PostgreSQL as the database. You can deploy it using Docker:
 
-1. Create a .env file in the project root with your database credentials:
-   env
+1. Create a `.env` file in the project root with your database credentials:
+   ```env
    POSTGRES_USER=<username>
    POSTGRES_PASSWORD=<password>
    POSTGRES_DB=<db-name>
    POSTGRES_HOST=<host>
    POSTGRES_PORT=<port>
-   
-   For host and port it is recommended to use localhost and port 5432.
+   ```
+
+   For host and port it is recommended to use `localhost` and port `5432`.
 2. Start the database container:
    ```bash
    make deploy-db
