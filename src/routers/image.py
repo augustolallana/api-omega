@@ -7,30 +7,30 @@ from sqlmodel import Session, and_, func, select
 from starlette import status
 
 from src.database.config import get_session
-from src.models.product.brand import Brand
+from src.models.product.image import Image
 from src.schemas.base import BaseResponse
 
-router = APIRouter(prefix="/brands", tags=["brands"])
+router = APIRouter(prefix="/images", tags=["images"])
 
 
 @router.get("/", response_model=BaseResponse)
-async def get_brands(
+async def get_images(
     session: Session = Depends(get_session),
-    name: Optional[str] = Query(
+    product_id: Optional[str] = Query(
         None,
-        description="Filter by brand name (case-insensitive partial match)",
+        description="Filter by product ID",
     ),
     skip: int = Query(0, description="Number of records to skip"),
     limit: int = Query(10, description="Maximum number of records to return"),
 ) -> BaseResponse:
     try:
         # Start with base query
-        query = select(Brand)
+        query = select(Image)
 
         # Build filter conditions
         conditions = []
-        if name:
-            conditions.append(Brand.name.ilike(f"%{name}%"))
+        if product_id:
+            conditions.append(Image.product_id == product_id)
 
         # Apply filters if any exist
         if conditions:
@@ -40,10 +40,10 @@ async def get_brands(
         query = query.offset(skip).limit(limit)
 
         # Execute query
-        brands = session.exec(query).all()
+        images = session.exec(query).all()
 
         # Get total count for pagination
-        count_query = select(Brand)
+        count_query = select(Image)
         if conditions:
             count_query = count_query.where(and_(*conditions))
         total = session.exec(
@@ -51,86 +51,80 @@ async def get_brands(
         ).first()
 
         return BaseResponse(
-            message="Brands retrieved successfully.",
+            message="Images retrieved successfully.",
             status_code=status.HTTP_200_OK,
             detail={
                 "total": total,
                 "skip": skip,
                 "limit": limit,
                 "filters_applied": {
-                    "name": name,
+                    "product_id": product_id,
                 },
-                "brands": brands,
+                "images": images,
             },
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving brands: {str(e)}",
+            detail=f"Error retrieving images: {str(e)}",
         )
 
 
 @router.get("/{id}", response_model=BaseResponse)
-async def get_brand(
+async def get_image(
     id: str, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        statement = select(Brand).where(Brand.id == id)
-        brand = session.exec(statement).first()
+        statement = select(Image).where(Image.id == id)
+        image = session.exec(statement).first()
 
-        if not brand:
+        if not image:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Brand with id {id} not found",
+                detail=f"Image with id {id} not found",
             )
 
         return BaseResponse(
-            message="Brand retrieved successfully.",
+            message="Image retrieved successfully.",
             status_code=status.HTTP_200_OK,
-            detail={"brand": brand},
+            detail={"image": image},
         )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving brand: {str(e)}",
+            detail=f"Error retrieving image: {str(e)}",
         )
 
 
 @router.post("/", response_model=BaseResponse)
-async def add_brand(
-    brand: Brand, session: Session = Depends(get_session)
+async def add_image(
+    image: Image, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        # Check if brand name already exists
-        existing_brand = session.exec(
-            select(Brand).where(Brand.name == brand.name)
+        # Verify product exists
+        product = session.exec(
+            select(Image.product).where(Image.product_id == image.product_id)
         ).first()
-
-        if existing_brand:
+        if not product:
             raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Brand with name '{brand.name}' already exists",
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Product with id {image.product_id} not found",
             )
 
-        session.add(brand)
+        session.add(image)
         session.commit()
-        session.refresh(brand)
+        session.refresh(image)
         return BaseResponse(
-            message="Brand added successfully.",
+            message="Image added successfully.",
             status_code=status.HTTP_201_CREATED,
-            detail={"brand": brand},
+            detail={"image": image},
         )
     except HTTPException:
         raise
     except IntegrityError as e:
         session.rollback()
-        if "unique constraint" in str(e).lower():
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Brand with name '{brand.name}' already exists",
-            )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Database error: {str(e)}",
@@ -139,47 +133,49 @@ async def add_brand(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error adding brand: {str(e)}",
+            detail=f"Error adding image: {str(e)}",
         )
 
 
 @router.put("/{id}", response_model=BaseResponse)
-async def update_brand(
-    id: str, brand_update: Brand, session: Session = Depends(get_session)
+async def update_image(
+    id: str, image_update: Image, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        statement = select(Brand).where(Brand.id == id)
-        brand = session.exec(statement).first()
+        statement = select(Image).where(Image.id == id)
+        image = session.exec(statement).first()
 
-        if not brand:
+        if not image:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Brand with id {id} not found",
+                detail=f"Image with id {id} not found",
             )
 
-        # Check if new name conflicts with existing brand
-        if brand_update.name != brand.name:
-            existing_brand = session.exec(
-                select(Brand).where(Brand.name == brand_update.name)
+        # If product_id is being updated, verify it exists
+        if image_update.product_id != image.product_id:
+            product = session.exec(
+                select(Image.product).where(
+                    Image.product_id == image_update.product_id
+                )
             ).first()
-            if existing_brand:
+            if not product:
                 raise HTTPException(
-                    status_code=status.HTTP_409_CONFLICT,
-                    detail=f"Brand with name '{brand_update.name}' already exists",
+                    status_code=status.HTTP_404_NOT_FOUND,
+                    detail=f"Product with id {image_update.product_id} not found",
                 )
 
-        for key, value in brand_update.model_dump(exclude_unset=True).items():
-            setattr(brand, key, value)
+        for key, value in image_update.model_dump(exclude_unset=True).items():
+            setattr(image, key, value)
 
-        brand.updated_at = datetime.now(timezone.utc)
-        session.add(brand)
+        image.updated_at = datetime.now(timezone.utc)
+        session.add(image)
         session.commit()
-        session.refresh(brand)
+        session.refresh(image)
 
         return BaseResponse(
-            message="Brand updated successfully.",
+            message="Image updated successfully.",
             status_code=status.HTTP_200_OK,
-            detail={"brand": brand},
+            detail={"image": image},
         )
     except HTTPException:
         raise
@@ -187,38 +183,31 @@ async def update_brand(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error updating brand: {str(e)}",
+            detail=f"Error updating image: {str(e)}",
         )
 
 
 @router.delete("/{id}", response_model=BaseResponse)
-async def delete_brand(
+async def delete_image(
     id: str, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        statement = select(Brand).where(Brand.id == id)
-        brand = session.exec(statement).first()
+        statement = select(Image).where(Image.id == id)
+        image = session.exec(statement).first()
 
-        if not brand:
+        if not image:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Brand with id {id} not found",
+                detail=f"Image with id {id} not found",
             )
 
-        # Check if brand has associated products
-        if brand.products:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot delete brand with associated products. Please delete or reassign the products first.",
-            )
-
-        session.delete(brand)
+        session.delete(image)
         session.commit()
 
         return BaseResponse(
-            message="Brand deleted successfully.",
+            message="Image deleted successfully.",
             status_code=status.HTTP_200_OK,
-            detail={"brand_id": id},
+            detail={"image_id": id},
         )
     except HTTPException:
         raise
@@ -226,5 +215,5 @@ async def delete_brand(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error deleting brand: {str(e)}",
+            detail=f"Error deleting image: {str(e)}",
         )
