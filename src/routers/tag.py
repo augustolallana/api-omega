@@ -7,53 +7,30 @@ from sqlmodel import Session, and_, func, select
 from starlette import status
 
 from src.database.config import get_session
-from src.models.product.product import Product
+from src.models.product.tag import Tag
 from src.schemas.base import BaseResponse
 
-router = APIRouter(prefix="/products", tags=["products"])
+router = APIRouter(prefix="/tags", tags=["tags"])
 
 
 @router.get("/", response_model=BaseResponse)
-async def get_products(
+async def get_tags(
     session: Session = Depends(get_session),
     name: Optional[str] = Query(
         None,
-        description="Filter by product name (case-insensitive partial match)",
-    ),
-    min_price: Optional[float] = Query(
-        None, description="Filter by minimum price"
-    ),
-    max_price: Optional[float] = Query(
-        None, description="Filter by maximum price"
-    ),
-    category_id: Optional[str] = Query(
-        None, description="Filter by category ID"
-    ),
-    brand_id: Optional[str] = Query(None, description="Filter by brand ID"),
-    min_stock: Optional[int] = Query(
-        None, description="Filter by minimum stock"
+        description="Filter by tag name (case-insensitive partial match)",
     ),
     skip: int = Query(0, description="Number of records to skip"),
     limit: int = Query(10, description="Maximum number of records to return"),
 ) -> BaseResponse:
     try:
         # Start with base query
-        query = select(Product)
+        query = select(Tag)
 
         # Build filter conditions
         conditions = []
         if name:
-            conditions.append(Product.name.ilike(f"%{name}%"))
-        if min_price is not None:
-            conditions.append(Product.price >= min_price)
-        if max_price is not None:
-            conditions.append(Product.price <= max_price)
-        if category_id:
-            conditions.append(Product.category_id == category_id)
-        if brand_id:
-            conditions.append(Product.brand_id == brand_id)
-        if min_stock is not None:
-            conditions.append(Product.stock >= min_stock)
+            conditions.append(Tag.name.ilike(f"%{name}%"))
 
         # Apply filters if any exist
         if conditions:
@@ -63,10 +40,10 @@ async def get_products(
         query = query.offset(skip).limit(limit)
 
         # Execute query
-        products = session.exec(query).all()
+        tags = session.exec(query).all()
 
         # Get total count for pagination
-        count_query = select(Product)
+        count_query = select(Tag)
         if conditions:
             count_query = count_query.where(and_(*conditions))
         total = session.exec(
@@ -74,7 +51,7 @@ async def get_products(
         ).first()
 
         return BaseResponse(
-            message="Products retrieved successfully.",
+            message="Tags retrieved successfully.",
             status_code=status.HTTP_200_OK,
             detail={
                 "total": total,
@@ -82,73 +59,68 @@ async def get_products(
                 "limit": limit,
                 "filters_applied": {
                     "name": name,
-                    "min_price": min_price,
-                    "max_price": max_price,
-                    "category_id": category_id,
-                    "brand_id": brand_id,
-                    "min_stock": min_stock,
                 },
-                "products": products,
+                "tags": tags,
             },
         )
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving products: {str(e)}",
+            detail=f"Error retrieving tags: {str(e)}",
         )
 
 
 @router.get("/{id}", response_model=BaseResponse)
-async def get_product(
+async def get_tag(
     id: str, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        statement = select(Product).where(Product.id == id)
-        product = session.exec(statement).first()
+        statement = select(Tag).where(Tag.id == id)
+        tag = session.exec(statement).first()
 
-        if not product:
+        if not tag:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Product with id {id} not found",
+                detail=f"Tag with id {id} not found",
             )
 
         return BaseResponse(
-            message="Product retrieved successfully.",
+            message="Tag retrieved successfully.",
             status_code=status.HTTP_200_OK,
-            detail={"product": product},
+            detail={"tag": tag},
         )
     except HTTPException:
         raise
     except Exception as e:
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error retrieving product: {str(e)}",
+            detail=f"Error retrieving tag: {str(e)}",
         )
 
 
 @router.post("/", response_model=BaseResponse)
-async def add_product(
-    product: Product, session: Session = Depends(get_session)
+async def add_tag(
+    tag: Tag, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        # Check if product name already exists
-        existing_product = session.exec(
-            select(Product).where(Product.name == product.name)
+        # Check if tag name already exists
+        existing_tag = session.exec(
+            select(Tag).where(Tag.name == tag.name)
         ).first()
 
-        if existing_product:
+        if existing_tag:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Product with name '{product.name}' already exists",
+                detail=f"Tag with name '{tag.name}' already exists",
             )
 
-        session.add(product)
+        session.add(tag)
         session.commit()
-        session.refresh(product)
+        session.refresh(tag)
         return BaseResponse(
-            message="Product added successfully.",
+            message="Tag added successfully.",
             status_code=status.HTTP_201_CREATED,
-            detail={"product": product},
+            detail={"tag": tag},
         )
     except HTTPException:
         raise
@@ -157,7 +129,7 @@ async def add_product(
         if "unique constraint" in str(e).lower():
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Product with name '{product.name}' already exists",
+                detail=f"Tag with name '{tag.name}' already exists",
             )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -167,38 +139,47 @@ async def add_product(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error adding product: {str(e)}",
+            detail=f"Error adding tag: {str(e)}",
         )
 
 
 @router.put("/{id}", response_model=BaseResponse)
-async def update_product(
-    id: str, product_update: Product, session: Session = Depends(get_session)
+async def update_tag(
+    id: str, tag_update: Tag, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        statement = select(Product).where(Product.id == id)
-        product = session.exec(statement).first()
+        statement = select(Tag).where(Tag.id == id)
+        tag = session.exec(statement).first()
 
-        if not product:
+        if not tag:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Product with id {id} not found",
+                detail=f"Tag with id {id} not found",
             )
 
-        for key, value in product_update.model_dump(
-            exclude_unset=True
-        ).items():
-            setattr(product, key, value)
+        # Check if new name conflicts with existing tag
+        if tag_update.name != tag.name:
+            existing_tag = session.exec(
+                select(Tag).where(Tag.name == tag_update.name)
+            ).first()
+            if existing_tag:
+                raise HTTPException(
+                    status_code=status.HTTP_409_CONFLICT,
+                    detail=f"Tag with name '{tag_update.name}' already exists",
+                )
 
-        product.updated_at = datetime.now(timezone.utc)
-        session.add(product)
+        for key, value in tag_update.model_dump(exclude_unset=True).items():
+            setattr(tag, key, value)
+
+        tag.updated_at = datetime.now(timezone.utc)
+        session.add(tag)
         session.commit()
-        session.refresh(product)
+        session.refresh(tag)
 
         return BaseResponse(
-            message="Product updated successfully.",
+            message="Tag updated successfully.",
             status_code=status.HTTP_200_OK,
-            detail={"product": product},
+            detail={"tag": tag},
         )
     except HTTPException:
         raise
@@ -206,31 +187,38 @@ async def update_product(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error updating product: {str(e)}",
+            detail=f"Error updating tag: {str(e)}",
         )
 
 
 @router.delete("/{id}", response_model=BaseResponse)
-async def delete_product(
+async def delete_tag(
     id: str, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        statement = select(Product).where(Product.id == id)
-        product = session.exec(statement).first()
+        statement = select(Tag).where(Tag.id == id)
+        tag = session.exec(statement).first()
 
-        if not product:
+        if not tag:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Product with id {id} not found",
+                detail=f"Tag with id {id} not found",
             )
 
-        session.delete(product)
+        # Check if tag has associated products
+        if tag.products:
+            raise HTTPException(
+                status_code=status.HTTP_400_BAD_REQUEST,
+                detail="Cannot delete tag with associated products. Please remove the products first.",
+            )
+
+        session.delete(tag)
         session.commit()
 
         return BaseResponse(
-            message="Product deleted successfully.",
+            message="Tag deleted successfully.",
             status_code=status.HTTP_200_OK,
-            detail={"product_id": id},
+            detail={"tag_id": id},
         )
     except HTTPException:
         raise
@@ -238,5 +226,5 @@ async def delete_product(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error deleting product: {str(e)}",
+            detail=f"Error deleting tag: {str(e)}",
         )
