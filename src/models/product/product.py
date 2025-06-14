@@ -23,7 +23,7 @@ class Product(SQLModel, table=True):
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
-    name: str = Field(index=True)
+    name: str = Field(index=True, unique=True)
     summary: str
     description: str
     price: float
