@@ -1,16 +1,10 @@
 from datetime import datetime
-from enum import Enum
 from typing import List, Optional
 
 from pydantic import BaseModel, Field
 
-from src.models.order.address import Province
-from src.models.order.payment import PaymentMethodType
-
-
-class PaymentMethod(str, Enum):
-    TRANSFER = "transfer"
-    MERCADOPAGO = "mercadopago"
+from src.constants.payment import PaymentMethodType
+from src.constants.province import Province
 
 
 class AddressBase(BaseModel):

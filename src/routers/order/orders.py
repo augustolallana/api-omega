@@ -21,10 +21,10 @@ from src.schemas.order import (
     PaymentMethodResponse,
 )
 
-order = APIRouter(prefix="/orders", tags=["orders"])
+router = APIRouter(prefix="/orders", tags=["orders"])
 
 
-@order.get("/", response_model=BaseResponse)
+@router.get("/", response_model=BaseResponse)
 async def get_orders(
     session: Session = Depends(get_session),
     user_id: Optional[str] = Query(
@@ -88,7 +88,7 @@ async def get_orders(
         )
 
 
-@order.get("/{id}", response_model=BaseResponse)
+@router.get("/{id}", response_model=BaseResponse)
 async def get_order(
     id: str, session: Session = Depends(get_session)
 ) -> BaseResponse:
@@ -116,7 +116,7 @@ async def get_order(
         )
 
 
-@order.post("/", response_model=BaseResponse)
+@router.post("/", response_model=BaseResponse)
 async def create_order(
     order_data: OrderCreate, session: Session = Depends(get_session)
 ) -> BaseResponse:
@@ -177,7 +177,7 @@ async def create_order(
         )
 
 
-@order.put("/{id}", response_model=BaseResponse)
+@router.put("/{id}", response_model=BaseResponse)
 async def update_order(
     id: str,
     order_update: OrderUpdate,
@@ -247,7 +247,7 @@ async def update_order(
         )
 
 
-@order.delete("/{id}", response_model=BaseResponse)
+@router.delete("/{id}", response_model=BaseResponse)
 async def delete_order(
     id: str, session: Session = Depends(get_session)
 ) -> BaseResponse:
