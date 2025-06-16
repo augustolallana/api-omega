@@ -1,14 +1,14 @@
 from datetime import datetime, timezone
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, and_, func, select
-from starlette import status
 
 from src.database.config import get_session
 from src.models.product.image import Image
 from src.schemas.base import BaseResponse
+from src.schemas.products.image import ImageCreate, ImageUpdate
 
 router = APIRouter(prefix="/images", tags=["images"])
 
@@ -99,25 +99,27 @@ async def get_image(
 
 
 @router.post("/", response_model=BaseResponse)
-async def add_image(
-    image: Image, session: Session = Depends(get_session)
+async def create_image(
+    image_create: ImageCreate, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        # Verify product exists
+        # Check if product exists
         product = session.exec(
-            select(Image.product).where(Image.product_id == image.product_id)
+            select(Image).where(Image.product_id == image_create.product_id)
         ).first()
         if not product:
             raise HTTPException(
                 status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Product with id {image.product_id} not found",
+                detail=f"Product with id {image_create.product_id} not found",
             )
 
+        image = Image(**image_create.model_dump())
         session.add(image)
         session.commit()
         session.refresh(image)
+
         return BaseResponse(
-            message="Image added successfully.",
+            message="Image created successfully.",
             status_code=status.HTTP_201_CREATED,
             detail={"image": image},
         )
@@ -125,6 +127,11 @@ async def add_image(
         raise
     except IntegrityError as e:
         session.rollback()
+        if "foreign key constraint" in str(e).lower():
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"Product with id {image_create.product_id} not found",
+            )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=f"Database error: {str(e)}",
@@ -133,13 +140,13 @@ async def add_image(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error adding image: {str(e)}",
+            detail=f"Error creating image: {str(e)}",
         )
 
 
 @router.put("/{id}", response_model=BaseResponse)
 async def update_image(
-    id: str, image_update: Image, session: Session = Depends(get_session)
+    id: str, image_update: ImageUpdate, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
         statement = select(Image).where(Image.id == id)
@@ -150,19 +157,6 @@ async def update_image(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Image with id {id} not found",
             )
-
-        # If product_id is being updated, verify it exists
-        if image_update.product_id != image.product_id:
-            product = session.exec(
-                select(Image.product).where(
-                    Image.product_id == image_update.product_id
-                )
-            ).first()
-            if not product:
-                raise HTTPException(
-                    status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Product with id {image_update.product_id} not found",
-                )
 
         for key, value in image_update.model_dump(exclude_unset=True).items():
             setattr(image, key, value)
