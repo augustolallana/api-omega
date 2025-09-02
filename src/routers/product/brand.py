@@ -1,14 +1,14 @@
 from datetime import datetime, timezone
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, and_, func, select
-from starlette import status
 
 from src.database.config import get_session
 from src.models.product.brand import Brand
 from src.schemas.base import BaseResponse
+from src.schemas.products.brand import BrandCreate, BrandUpdate
 
 router = APIRouter(prefix="/brands", tags=["brands"])
 
@@ -28,13 +28,13 @@ async def get_brands(
         query = select(Brand)
 
         # Build filter conditions
-        conditions = []
+        filters = []
         if name:
-            conditions.append(Brand.name.ilike(f"%{name}%"))
+            filters.append(Brand.name.ilike(f"%{name}%"))
 
         # Apply filters if any exist
-        if conditions:
-            query = query.where(and_(*conditions))
+        if filters:
+            query = query.where(and_(*filters))
 
         # Apply pagination
         query = query.offset(skip).limit(limit)
@@ -44,8 +44,8 @@ async def get_brands(
 
         # Get total count for pagination
         count_query = select(Brand)
-        if conditions:
-            count_query = count_query.where(and_(*conditions))
+        if filters:
+            count_query = count_query.where(and_(*filters))
         total = session.exec(
             select(func.count()).select_from(count_query.subquery())
         ).first()
@@ -99,26 +99,27 @@ async def get_brand(
 
 
 @router.post("/", response_model=BaseResponse)
-async def add_brand(
-    brand: Brand, session: Session = Depends(get_session)
+async def create_brand(
+    brand_create: BrandCreate, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        # Check if brand name already exists
+        # Check if brand with same name already exists
         existing_brand = session.exec(
-            select(Brand).where(Brand.name == brand.name)
+            select(Brand).where(Brand.name == brand_create.name)
         ).first()
-
         if existing_brand:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Brand with name '{brand.name}' already exists",
+                detail=f"Brand with name '{brand_create.name}' already exists",
             )
 
+        brand = Brand(**brand_create.model_dump())
         session.add(brand)
         session.commit()
         session.refresh(brand)
+
         return BaseResponse(
-            message="Brand added successfully.",
+            message="Brand created successfully.",
             status_code=status.HTTP_201_CREATED,
             detail={"brand": brand},
         )
@@ -129,7 +130,7 @@ async def add_brand(
         if "unique constraint" in str(e).lower():
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Brand with name '{brand.name}' already exists",
+                detail=f"Brand with name '{brand_create.name}' already exists",
             )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -139,13 +140,13 @@ async def add_brand(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error adding brand: {str(e)}",
+            detail=f"Error creating brand: {str(e)}",
         )
 
 
 @router.put("/{id}", response_model=BaseResponse)
 async def update_brand(
-    id: str, brand_update: Brand, session: Session = Depends(get_session)
+    id: str, brand_update: BrandUpdate, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
         statement = select(Brand).where(Brand.id == id)
@@ -158,7 +159,7 @@ async def update_brand(
             )
 
         # Check if new name conflicts with existing brand
-        if brand_update.name != brand.name:
+        if brand_update.name and brand_update.name != brand.name:
             existing_brand = session.exec(
                 select(Brand).where(Brand.name == brand_update.name)
             ).first()

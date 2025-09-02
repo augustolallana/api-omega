@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING, List
 
 from sqlmodel import Field, Relationship, SQLModel
 
+from src.constants.order_status import OrderStatus
 from src.models.order.address import Address
 from src.models.order.order_item import OrderItem
 from src.models.order.payment import PaymentMethod
@@ -24,7 +25,7 @@ class Order(SQLModel, table=True):
         foreign_key="payment_methods.id", index=True
     )
     total_amount: float
-    status: str
+    status: OrderStatus = Field(default=OrderStatus.PENDING)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )

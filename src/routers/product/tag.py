@@ -1,14 +1,14 @@
 from datetime import datetime, timezone
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, and_, func, select
-from starlette import status
 
 from src.database.config import get_session
 from src.models.product.tag import Tag
 from src.schemas.base import BaseResponse
+from src.schemas.products.tag import TagCreate, TagUpdate
 
 router = APIRouter(prefix="/tags", tags=["tags"])
 
@@ -99,26 +99,27 @@ async def get_tag(
 
 
 @router.post("/", response_model=BaseResponse)
-async def add_tag(
-    tag: Tag, session: Session = Depends(get_session)
+async def create_tag(
+    tag_create: TagCreate, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        # Check if tag name already exists
+        # Check if tag with same name already exists
         existing_tag = session.exec(
-            select(Tag).where(Tag.name == tag.name)
+            select(Tag).where(Tag.name == tag_create.name)
         ).first()
-
         if existing_tag:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Tag with name '{tag.name}' already exists",
+                detail=f"Tag with name '{tag_create.name}' already exists",
             )
 
+        tag = Tag(**tag_create.model_dump())
         session.add(tag)
         session.commit()
         session.refresh(tag)
+
         return BaseResponse(
-            message="Tag added successfully.",
+            message="Tag created successfully.",
             status_code=status.HTTP_201_CREATED,
             detail={"tag": tag},
         )
@@ -129,7 +130,7 @@ async def add_tag(
         if "unique constraint" in str(e).lower():
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Tag with name '{tag.name}' already exists",
+                detail=f"Tag with name '{tag_create.name}' already exists",
             )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -139,13 +140,13 @@ async def add_tag(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error adding tag: {str(e)}",
+            detail=f"Error creating tag: {str(e)}",
         )
 
 
 @router.put("/{id}", response_model=BaseResponse)
 async def update_tag(
-    id: str, tag_update: Tag, session: Session = Depends(get_session)
+    id: str, tag_update: TagUpdate, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
         statement = select(Tag).where(Tag.id == id)
@@ -158,7 +159,7 @@ async def update_tag(
             )
 
         # Check if new name conflicts with existing tag
-        if tag_update.name != tag.name:
+        if tag_update.name and tag_update.name != tag.name:
             existing_tag = session.exec(
                 select(Tag).where(Tag.name == tag_update.name)
             ).first()
@@ -209,7 +210,7 @@ async def delete_tag(
         if tag.products:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot delete tag with associated products. Please remove the products first.",
+                detail="Cannot delete tag with associated products. Please remove the tag from products first.",
             )
 
         session.delete(tag)

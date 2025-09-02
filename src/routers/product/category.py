@@ -1,14 +1,14 @@
 from datetime import datetime, timezone
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, and_, func, select
-from starlette import status
 
 from src.database.config import get_session
 from src.models.product.category import Category
 from src.schemas.base import BaseResponse
+from src.schemas.products.category import CategoryCreate, CategoryUpdate
 
 router = APIRouter(prefix="/categories", tags=["categories"])
 
@@ -106,37 +106,40 @@ async def get_category(
 
 
 @router.post("/", response_model=BaseResponse)
-async def add_category(
-    category: Category, session: Session = Depends(get_session)
+async def create_category(
+    category_create: CategoryCreate, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        # Check if category name already exists
+        # Check if category with same name already exists
         existing_category = session.exec(
-            select(Category).where(Category.name == category.name)
+            select(Category).where(Category.name == category_create.name)
         ).first()
-
         if existing_category:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Category with name '{category.name}' already exists",
+                detail=f"Category with name '{category_create.name}' already exists",
             )
 
         # If parent_id is provided, verify it exists
-        if category.parent_id:
+        if category_create.parent_id:
             parent = session.exec(
-                select(Category).where(Category.id == category.parent_id)
+                select(Category).where(
+                    Category.id == category_create.parent_id
+                )
             ).first()
             if not parent:
                 raise HTTPException(
                     status_code=status.HTTP_404_NOT_FOUND,
-                    detail=f"Parent category with id {category.parent_id} not found",
+                    detail=f"Parent category with id {category_create.parent_id} not found",
                 )
 
+        category = Category(**category_create.model_dump())
         session.add(category)
         session.commit()
         session.refresh(category)
+
         return BaseResponse(
-            message="Category added successfully.",
+            message="Category created successfully.",
             status_code=status.HTTP_201_CREATED,
             detail={"category": category},
         )
@@ -157,13 +160,15 @@ async def add_category(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error adding category: {str(e)}",
+            detail=f"Error creating category: {str(e)}",
         )
 
 
 @router.put("/{id}", response_model=BaseResponse)
 async def update_category(
-    id: str, category_update: Category, session: Session = Depends(get_session)
+    id: str,
+    category_update: CategoryUpdate,
+    session: Session = Depends(get_session),
 ) -> BaseResponse:
     try:
         statement = select(Category).where(Category.id == id)
@@ -176,7 +181,7 @@ async def update_category(
             )
 
         # Check if new name conflicts with existing category
-        if category_update.name != category.name:
+        if category_update.name and category_update.name != category.name:
             existing_category = session.exec(
                 select(Category).where(Category.name == category_update.name)
             ).first()
@@ -187,7 +192,10 @@ async def update_category(
                 )
 
         # If parent_id is being updated, verify it exists and check for circular reference
-        if category_update.parent_id != category.parent_id:
+        if (
+            category_update.parent_id
+            and category_update.parent_id != category.parent_id
+        ):
             if category_update.parent_id:
                 parent = session.exec(
                     select(Category).where(
@@ -258,27 +266,12 @@ async def delete_category(
                 detail=f"Category with id {id} not found",
             )
 
-        # Check if category has associated products
-        if category.products:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot delete category with associated products. Please delete or reassign the products first.",
-            )
-
-        # Check if category has children
-        if category.children:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot delete category with child categories. Please delete or reassign the children first.",
-            )
-
         session.delete(category)
         session.commit()
 
         return BaseResponse(
             message="Category deleted successfully.",
             status_code=status.HTTP_200_OK,
-            detail={"category_id": id},
         )
     except HTTPException:
         raise

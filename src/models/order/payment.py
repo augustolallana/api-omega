@@ -1,13 +1,9 @@
 import uuid
 from datetime import datetime, timezone
-from enum import Enum
 
 from sqlmodel import Field, SQLModel
 
-
-class PaymentMethodType(str, Enum):
-    TRANSFER = "transfer"
-    MERCADOPAGO = "mercadopago"
+from src.constants.payment import PaymentMethodType
 
 
 class PaymentMethod(SQLModel, table=True):

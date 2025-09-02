@@ -5,7 +5,8 @@ from fastapi import FastAPI
 from src.database.config import create_db_and_tables
 from src.routers import auth, users
 from src.routers.cart import cart
-from src.routers.order import checkout, orders
+
+# from src.routers.order import orders
 from src.routers.product import (
     brand,
     category,
@@ -39,8 +40,7 @@ app.include_router(users.router)
 app.include_router(cart.router)
 
 # Order routes
-app.include_router(checkout.router)
-app.include_router(orders.router)
+# app.include_router(orders.router)
 
 # Product routes
 app.include_router(products.router)

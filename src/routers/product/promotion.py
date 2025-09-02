@@ -1,14 +1,14 @@
 from datetime import datetime, timezone
-from typing import Optional
+from typing import List, Optional
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from sqlalchemy.exc import IntegrityError
 from sqlmodel import Session, and_, func, select
-from starlette import status
 
 from src.database.config import get_session
 from src.models.product.promotion import Promotion
 from src.schemas.base import BaseResponse
+from src.schemas.products.promotion import PromotionCreate, PromotionUpdate
 
 router = APIRouter(prefix="/promotions", tags=["promotions"])
 
@@ -113,33 +113,34 @@ async def get_promotion(
 
 
 @router.post("/", response_model=BaseResponse)
-async def add_promotion(
-    promotion: Promotion, session: Session = Depends(get_session)
+async def create_promotion(
+    promotion_create: PromotionCreate, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
+        # Check if promotion with same name already exists
+        existing_promotion = session.exec(
+            select(Promotion).where(Promotion.name == promotion_create.name)
+        ).first()
+        if existing_promotion:
+            raise HTTPException(
+                status_code=status.HTTP_409_CONFLICT,
+                detail=f"Promotion with name '{promotion_create.name}' already exists",
+            )
+
         # Validate dates
-        if promotion.start_date >= promotion.end_date:
+        if promotion_create.start_date >= promotion_create.end_date:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail="Start date must be before end date",
             )
 
-        # Check if promotion name already exists
-        existing_promotion = session.exec(
-            select(Promotion).where(Promotion.name == promotion.name)
-        ).first()
-
-        if existing_promotion:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail=f"Promotion with name '{promotion.name}' already exists",
-            )
-
+        promotion = Promotion(**promotion_create.model_dump())
         session.add(promotion)
         session.commit()
         session.refresh(promotion)
+
         return BaseResponse(
-            message="Promotion added successfully.",
+            message="Promotion created successfully.",
             status_code=status.HTTP_201_CREATED,
             detail={"promotion": promotion},
         )
@@ -150,7 +151,7 @@ async def add_promotion(
         if "unique constraint" in str(e).lower():
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Promotion with name '{promotion.name}' already exists",
+                detail=f"Promotion with name '{promotion_create.name}' already exists",
             )
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -160,14 +161,14 @@ async def add_promotion(
         session.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail=f"Error adding promotion: {str(e)}",
+            detail=f"Error creating promotion: {str(e)}",
         )
 
 
 @router.put("/{id}", response_model=BaseResponse)
 async def update_promotion(
     id: str,
-    promotion_update: Promotion,
+    promotion_update: PromotionUpdate,
     session: Session = Depends(get_session),
 ) -> BaseResponse:
     try:
@@ -181,7 +182,7 @@ async def update_promotion(
             )
 
         # Check if new name conflicts with existing promotion
-        if promotion_update.name != promotion.name:
+        if promotion_update.name and promotion_update.name != promotion.name:
             existing_promotion = session.exec(
                 select(Promotion).where(
                     Promotion.name == promotion_update.name
@@ -193,12 +194,25 @@ async def update_promotion(
                     detail=f"Promotion with name '{promotion_update.name}' already exists",
                 )
 
-        # Validate dates
-        if promotion_update.start_date >= promotion_update.end_date:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Start date must be before end date",
-            )
+        # Validate dates if being updated
+        if promotion_update.start_date and promotion_update.end_date:
+            if promotion_update.start_date >= promotion_update.end_date:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Start date must be before end date",
+                )
+        elif promotion_update.start_date:
+            if promotion_update.start_date >= promotion.end_date:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Start date must be before end date",
+                )
+        elif promotion_update.end_date:
+            if promotion.start_date >= promotion_update.end_date:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="Start date must be before end date",
+                )
 
         for key, value in promotion_update.model_dump(
             exclude_unset=True
@@ -243,7 +257,7 @@ async def delete_promotion(
         if promotion.products:
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Cannot delete promotion with associated products. Please remove the products first.",
+                detail="Cannot delete promotion with associated products. Please remove the promotion from products first.",
             )
 
         session.delete(promotion)
