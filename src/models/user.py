@@ -12,14 +12,15 @@ if TYPE_CHECKING:
 class User(SQLModel, table=True):
     __tablename__ = "users"
 
-    id: str = Field(
-        default_factory=lambda: str(uuid.uuid4()), primary_key=True
-    )
+    id: str = Field(unique=True, primary_key=True)
     email: str = Field(unique=True, index=True)
-    username: str = Field(unique=True, index=True)
-    hashed_password: str
+    name: str = Field(index=True)
+    last_name: str = Field(index=True)
+    username: str = Field(
+        unique=True, index=True
+    )  # recortar a 12 caracteres concatenando nombre y apellido
     is_admin: bool = Field(default=False)
-    is_active: bool = Field(default=False)
+    is_active: bool = Field(default=True)
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )

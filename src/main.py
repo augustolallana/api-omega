@@ -2,11 +2,8 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 
-from src.database.config import create_db_and_tables
-from src.routers import auth, users
-from src.routers.cart import cart
-
-# from src.routers.order import orders
+from src.database.config import create_db_and_tables, create_firebase_auth
+from src.routers import auth, order, users, configuration
 from src.routers.product import (
     brand,
     category,
@@ -17,12 +14,16 @@ from src.routers.product import (
 )
 from src.settings import settings
 
+from src.routers import cart
+
+
 
 # Runs on every server startup
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     """Lifespan events for the FastAPI application."""
     create_db_and_tables()
+    create_firebase_auth()
     yield
 
 
@@ -40,7 +41,7 @@ app.include_router(users.router)
 app.include_router(cart.router)
 
 # Order routes
-# app.include_router(orders.router)
+app.include_router(order.router)
 
 # Product routes
 app.include_router(products.router)
@@ -49,3 +50,4 @@ app.include_router(category.router)
 app.include_router(promotion.router)
 app.include_router(tag.router)
 app.include_router(image.router)
+app.include_router(configuration.router)

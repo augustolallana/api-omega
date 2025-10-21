@@ -7,6 +7,7 @@ from src.constants.payment import PaymentMethodType
 from src.constants.province import Province
 
 
+# ADDRESS SCHEMAS
 class AddressBase(BaseModel):
     province: Province
     city: str
@@ -27,6 +28,7 @@ class AddressResponse(AddressBase):
         from_attributes = True
 
 
+# PAYMENT METHOD SCHEMAS
 class PaymentMethodBase(BaseModel):
     type: PaymentMethodType
     details: Optional[str] = None
@@ -45,14 +47,14 @@ class PaymentMethodResponse(PaymentMethodBase):
         from_attributes = True
 
 
+# ORDER ITEM SCHEMAS
 class OrderItemBase(BaseModel):
     product_id: str
     quantity: int
-    unit_price: float
 
 
 class OrderItemCreate(OrderItemBase):
-    pass
+    unit_price: float
 
 
 class OrderItemResponse(OrderItemBase):
@@ -63,6 +65,7 @@ class OrderItemResponse(OrderItemBase):
         from_attributes = True
 
 
+# ORDER SCHEMAS
 class OrderBase(BaseModel):
     user_id: str
     address_id: str
@@ -71,7 +74,7 @@ class OrderBase(BaseModel):
 
 
 class OrderCreate(OrderBase):
-    items: List[OrderItemCreate]
+    items: List[OrderItemBase]
 
 
 class OrderUpdate(BaseModel):
@@ -88,7 +91,7 @@ class OrderResponse(OrderBase):
     updated_at: datetime
     items: List[OrderItemResponse]
     address: AddressResponse
-    payment_method: PaymentMethodResponse
+    payment_method: PaymentMethodType
 
     class Config:
         from_attributes = True
