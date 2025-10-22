@@ -23,6 +23,11 @@ class Settings(BaseSettings):
             f"@{self.POSTGRES_HOST}:{self.POSTGRES_PORT}"
             f"/{self.POSTGRES_DB}"
         )
+        
+    @property
+    def FIREBASE_CRED(self) -> str:
+        """Get firebase credentials reference."""
+        return "omega-ecommerce-firebase-adminsdk-fbsvc-f77a96968c.json"
 
     # API settings
     API_BASE_PATH: str = f"/api/{API_VERSION.V1}"

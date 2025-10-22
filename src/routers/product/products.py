@@ -41,7 +41,7 @@ async def get_products(
         description="Filter by stock availability",
     ),
     skip: int = Query(0, description="Number of records to skip"),
-    limit: int = Query(10, description="Maximum number of records to return"),
+    limit: int = Query(100, description="Maximum number of records to return"),
 ) -> BaseResponse:
     try:
         # Start with base query
