@@ -6,9 +6,9 @@ dev:
 prod:
 	uv run uvicorn src.main:app
 reset-db:
-	docker-compose down -v 
-	docker-compose up -d
+	docker compose down -v 
+	docker compose up -d
 deploy-db:
-	docker-compose up -d
+	docker compose up -d
 shutdown-db:
-	docker-compose down
+	docker compose down

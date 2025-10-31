@@ -8,7 +8,8 @@ class ProductBase(BaseModel):
     name: str
     summary: str
     description: str
-    price: float
+    current_price: float
+    old_price: Optional[float] = None
     category_id: str
     brand_id: str
     stock: int
@@ -22,7 +23,8 @@ class ProductUpdate(BaseModel):
     name: Optional[str] = None
     summary: Optional[str] = None
     description: Optional[str] = None
-    price: Optional[float] = None
+    current_price: float
+    old_price: Optional[float] = None
     category_id: Optional[str] = None
     brand_id: Optional[str] = None
     stock: Optional[int] = None

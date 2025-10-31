@@ -32,7 +32,7 @@ async def get_cart(
 
         # Calculate totals
         total_items = sum(item.quantity for item, _ in results)
-        total_price = sum(item.quantity * product.price for item, product in results)
+        total_price = sum(item.quantity * product.current_price for item, product in results)
 
         # Format response
         cart_items = [
