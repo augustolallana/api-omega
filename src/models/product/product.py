@@ -19,23 +19,17 @@ class Product(SQLModel, table=True):
     id: str = Field(
         default_factory=lambda: str(uuid.uuid4()), primary_key=True
     )
-    name: str = Field(index=True, unique=True)
-    summary: str
-    description: str
-    current_price: float = Field(..., alias="currentPrice")
-    old_price: Optional[float] = Field(None, alias="oldPrice")
-    rating: Optional[float] = None
-    color: Optional[str] = None
-    condition: Optional[str] = None
-    badge_label: Optional[str] = Field(None, alias="badgeLabel")
-    badge_color: Optional[str] = Field(None, alias="badgeColor")
-    category_id: str = Field(foreign_key="categories.id", index=True)
+    title: str = Field(index=True, unique=True)
+    current_price: float
+    old_price: Optional[float] = None
+    rating: float
     brand_id: str = Field(foreign_key="brands.id", index=True)
-    stock: int = 0
-    manufactured_at: Optional[datetime] = Field(None, alias="mfg")
-    life_span_days: Optional[int] = Field(None, alias="life") 
-    expiration_date: Optional[datetime] = None
-
+    category_id: str = Field(foreign_key="categories.id", index=True)
+    color: str
+    condition: str
+    description: str
+    stock: int
+    life: str
     created_at: datetime = Field(
         default_factory=lambda: datetime.now(timezone.utc)
     )

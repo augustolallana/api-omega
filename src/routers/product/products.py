@@ -16,9 +16,9 @@ router = APIRouter(prefix="/products", tags=["products"])
 @router.get("/", response_model=BaseResponse)
 async def get_products(
     session: Session = Depends(get_session),
-    name: Optional[str] = Query(
+    title: Optional[str] = Query(
         None,
-        description="Filter by product name (case-insensitive partial match)",
+        description="Filter by product title (case-insensitive partial match)",
     ),
     category_id: Optional[str] = Query(
         None,
@@ -49,16 +49,16 @@ async def get_products(
 
         # Build filter conditions
         conditions = []
-        if name:
-            conditions.append(Product.name.ilike(f"%{name}%"))
+        if title:
+            conditions.append(Product.title.ilike(f"%{title}%"))
         if category_id:
             conditions.append(Product.category_id == category_id)
         if brand_id:
             conditions.append(Product.brand_id == brand_id)
         if min_price is not None:
-            conditions.append(Product.price >= min_price)
+            conditions.append(Product.current_price >= min_price)
         if max_price is not None:
-            conditions.append(Product.price <= max_price)
+            conditions.append(Product.current_price <= max_price)
         if in_stock is not None:
             if in_stock:
                 conditions.append(Product.stock > 0)
@@ -91,7 +91,7 @@ async def get_products(
                 "skip": skip,
                 "limit": limit,
                 "filters_applied": {
-                    "name": name,
+                    "title": title,
                     "category_id": category_id,
                     "brand_id": brand_id,
                     "min_price": min_price,
@@ -141,14 +141,14 @@ async def create_product(
     product_create: ProductCreate, session: Session = Depends(get_session)
 ) -> BaseResponse:
     try:
-        # Check if product with same name already exists
+        # Check if product with same title already exists
         existing_product = session.exec(
-            select(Product).where(Product.name == product_create.name)
+            select(Product).where(Product.title == product_create.title)
         ).first()
         if existing_product:
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Product with name '{product_create.name}' already exists",
+                detail=f"Product with title '{product_create.title}' already exists",
             )
 
         # Verify category exists
@@ -190,7 +190,7 @@ async def create_product(
         if "unique constraint" in str(e).lower():
             raise HTTPException(
                 status_code=status.HTTP_409_CONFLICT,
-                detail=f"Product with name '{product_create.name}' already exists",
+                detail=f"Product with title '{product_create.title}' already exists",
             )
         if "foreign key constraint" in str(e).lower():
             if "category_id" in str(e).lower():
@@ -231,15 +231,15 @@ async def update_product(
                 detail=f"Product with id {id} not found",
             )
 
-        # Check if new name conflicts with existing product
-        if product_update.name and product_update.name != product.name:
+        # Check if new title conflicts with existing product
+        if product_update.title and product_update.title != product.title:
             existing_product = session.exec(
-                select(Product).where(Product.name == product_update.name)
+                select(Product).where(Product.title == product_update.title)
             ).first()
             if existing_product:
                 raise HTTPException(
                     status_code=status.HTTP_409_CONFLICT,
-                    detail=f"Product with name '{product_update.name}' already exists",
+                    detail=f"Product with title '{product_update.title}' already exists",
                 )
 
         # If category_id is being updated, verify it exists
