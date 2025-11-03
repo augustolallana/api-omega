@@ -5,14 +5,17 @@ from pydantic import BaseModel
 
 
 class ProductBase(BaseModel):
-    name: str
-    summary: str
-    description: str
+    title: str
     current_price: float
     old_price: Optional[float] = None
-    category_id: str
+    rating: float
     brand_id: str
+    category_id: str
+    color: str
+    condition: str
+    description: str
     stock: int
+    life: str
 
 
 class ProductCreate(ProductBase):
@@ -20,11 +23,14 @@ class ProductCreate(ProductBase):
 
 
 class ProductUpdate(BaseModel):
-    name: Optional[str] = None
-    summary: Optional[str] = None
-    description: Optional[str] = None
-    current_price: float
+    title: Optional[str] = None
+    current_price: Optional[float] = None
     old_price: Optional[float] = None
-    category_id: Optional[str] = None
+    rating: Optional[float] = None
     brand_id: Optional[str] = None
+    category_id: Optional[str] = None
+    color: Optional[str] = None
+    condition: Optional[str] = None
+    description: Optional[str] = None
     stock: Optional[int] = None
+    life: Optional[str] = None
